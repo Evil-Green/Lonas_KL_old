@@ -1,0 +1,468 @@
+#!/sbin/busybox sh
+
+XML=$CONFIG_XML
+
+echo "" > $XML
+
+echo '
+<settingsRoot>' >> $XML
+
+echo '
+  <settingsTab name="CPU">
+
+    <settingsPane description="Aplicar la configuración de arranque sólo si la que desea llega a ser estable, de lo contrario el equipo termina en un Bucle de reinicios o directamente no arrancará. Si se desactiva, los valores mostrados no corresponden a los valores reales actuales, los valores correctos de los perfiles están guardados." 
+                  name="CPU control switch">
+      <checkbox description="Si está activado, los ajustes siguientes se aplicarán en el arranque." 
+                name="Establezca la configuración de la CPU en el arranque" 
+                action="controlswitch CPU"
+                label="Establecer en el arranque"/>
+    </settingsPane>
+
+    <settingsPane description="CPU scaling" 
+                  name="CPU voltaje control">' >> $XML
+
+echo "
+      <spinner description=\"Establece la frecuencia máxima de la CPU. Por defecto: `cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq | rev | cut -c 4- | rev` MHz.\" 
+               name=\"CPU max frecuencia\" 
+               action=\"cpugeneric /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq\">" >> $XML
+
+while read FREQ UVOLT; do
+  echo "
+        <spinnerItem name=\"$FREQ MHz\" value=\"${FREQ}000\"/>" >> $XML
+done < /sys/devices/system/cpu/cpu0/cpufreq/UV_uV_table
+
+
+echo "
+      </spinner>
+      <spinner description=\"Establece la frecuencia mínima de la CPU. Por defecto: `cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq | rev | cut -c 4- | rev` MHz.\" 
+               name=\"CPU min frecuencia\" 
+               action=\"cpugeneric /sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq\">" >> $XML
+
+while read FREQ UVOLT; do
+  echo "
+        <spinnerItem name=\"$FREQ MHz\" value=\"${FREQ}000\"/>" >> $XML
+done < /sys/devices/system/cpu/cpu0/cpufreq/UV_uV_table
+
+echo '
+      </spinner>
+    </settingsPane>
+
+    <settingsPane description="La disminución de tensión reducirá el consumo de energía de la CPU. El aumento en las frecuencias de overclocking mejora la estabilidad. Demasiado bajo voltaje puede causar inestabilidad y puede quedarse congelado (Colgado)." 
+                  name="CPU voltage control">' >> $XML
+
+while read FREQ UVOLT; do
+  echo "
+      <seekBar  description=\"Voltage por defecto: $UVOLTµV\" 
+	        name=\"${FREQ} MHz step\" 
+                action=\"cpuvolt ${FREQ}\"
+                unit=\"µV\" min=\"600000\" reversed=\"false\" step=\"12500\" max=\"1400000\"/>" >> $XML
+  CPUFREQLIST="$CPUFREQLIST $FREQ"
+done < /sys/devices/system/cpu/cpu0/cpufreq/UV_uV_table
+
+echo '
+    </settingsPane>
+  </settingsTab>
+
+  <settingsTab name="Escalar CPU">
+
+    <settingsPane description="lonas es el gobernador por defecto para el funcionamiento diario. Desde aquí podrá modificar los diferentes valores que este contiene, ajústelo a su gusto o bien elegir otro mas acorde a su uso diario." 
+                  name="Elegir gobernador Activo">' >> $XML
+echo "
+      <spinner description=\"Set active governor. Por defecto: `cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor`\" 
+               name=\"Gobernador actual\" 
+               action=\"generic /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor\">" >> $XML
+
+for GOVERNOR in `cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_available_governors`; do
+  echo "
+        <spinnerItem name=\"$GOVERNOR\" value=\"$GOVERNOR\"/>" >> $XML
+done
+
+echo '
+      </spinner>
+    </settingsPane>
+    <settingsPane description="Ajustes para regular los voltajes de la frecuencia dinámica de la CPU." 
+                  name="DVFS tuneables">' >> $XML
+
+echo "
+      <seekBar description=\"Frecuencia de muestreo en microsegundos, el tiempo de muestreo en el cual el gobernador activa la carga de la CPU. Por defecto: `cat /sys/devices/system/cpu/cpufreq/lonas/sampling_rate` µS.\" 
+               name=\"Sampling rate\" 
+               action=\"generic /sys/devices/system/cpu/cpufreq/lonas/sampling_rate\"
+               unit=\"µS\" min=\"10000\" reversed=\"false\" step=\"1000\" max=\"100000\"/>
+
+      <seekBar description=\"Este valor actúa como multiplicador inverso para reducir la frecuencia de muestreo de utilización de la CPU (sampling_rate) cuando el procesador está realmente ocupado y está a la frecuencia máxima. Por ejemplo sampling_rate=10.000 con sampling_down_factor=2: el scheduler tomará muestras de utilización de la CPU cada 20.000 microsegundos. De esta forma se aumenta el tiempo que la CPU está a frecuencias altas cuando está realmente ocupada. Esto mejora el rendimiento mediante la reducción de los gastos generales de la evaluación de la carga y ayudando a la CPU permanecer en su frecuencia más alta cuando está ocupada, en vez de producir un efecto ping-pong en la velocidad. Este parámetro no tiene ningún efecto sobre el comportamiento a bajas frecuencias y bajas cargas de CPU. 
+Los valores que puede tomar este parámetro son enteros positivos. El valor 1 hace que no haya diferencias de muestreo a frecuencia maxima. Por defecto: `cat /sys/devices/system/cpu/cpufreq/lonas/sampling_down_factor` samples.\" 
+               name=\"Sampling down factor\" 
+               action=\"generic /sys/devices/system/cpu/cpufreq/lonas/sampling_down_factor\"
+               unit=\"samples\" min=\"1\" reversed=\"false\" step=\"1\" max=\"10\"/>
+
+      <seekBar description=\"cuando la carga de la CPU llega a este punto, la frecuencia de la CPU escalará hacia arriba. Está medido en porcentaje de 1 a 100. Mayor valor significa menos capacidad de respuesta y valores más bajos corresponden a mejor respuesta repercutiendo en el gasto de la batería. Por defecto: `cat /sys/devices/system/cpu/cpufreq/lonas/up_threshold`%.\" 
+               name=\"Up threshold\" 
+               action=\"generic /sys/devices/system/cpu/cpufreq/lonas/up_threshold\"
+               unit=\"%\" min=\"11\" reversed=\"false\" step=\"1\" max=\"99\"/>
+
+      <seekBar description=\"Es un factor utilizado para calcular de forma indirecta el escalado hacia abajo del gobernador OnDemand. Se introduce básicamente para evitar que en algunos casos se produzca un efecto ping-pong de escalados abajo-arriba con el consiguiente aumento de consumo. Este parámetro actúa como un factor que previene escalados demasiado agresivos hacia frecuencias bajas.
+Los valores que puede tomar este parámetro son enteros positivos. Los valores más altos retrasarán el escalado hacia abajo. Normalmente no son necesarios estos valores altos ya que por la estructura del algoritmo en que interviene este parámetro ya se producen varios redondeos al alza que hacen que la CPU normalmente esté "sobrada" utilizando este gobernador. Por defecto: `cat /sys/devices/system/cpu/cpufreq/lonas/down_differential`%.\" 
+               name=\"Down differential\" 
+               action=\"generic /sys/devices/system/cpu/cpufreq/lonas/down_differential\"
+               unit=\"%\" min=\"0\" reversed=\"false\" step=\"1\" max=\"50\"/>
+
+      <seekBar description=\"Define cuanto (en % de la máxima velocidad de la CPU) incrementará o disminuirá el gobernador la velocidad de la CPU cada vez que la carga de la CPU llega a un umbral. Por defecto: `cat /sys/devices/system/cpu/cpufreq/lonas/freq_step`%.\"
+               name=\"Frequency step\" 
+               action=\"generic /sys/devices/system/cpu/cpufreq/lonas/freq_step\"
+               unit=\"%\" min=\"1\" reversed=\"false\" step=\"1\" max=\"100\"/>" >> $XML
+
+echo '
+    </settingsPane>
+  </settingsTab>
+
+  <settingsTab name="Memoria/Interna">
+    <settingsPane description="Aplicar la configuración de arranque sólo si la que desea llega a ser estable, de lo contrario el equipo termina en un Bucle de reinicios o directamente no arrancará. Si se desactiva, los valores mostrados no corresponden a los valores reales actuales, los valores correctos de los perfiles están guardados." 
+                  name="MIF/INT voltage control switch">
+      <checkbox description="Si está activado, los ajustes siguientes se aplicarán en el arranque." 
+                name="Establecer voltajes del bus en el arranque" 
+                action="controlswitch BUS" 
+                label="Establecer en el arranque"/>
+    </settingsPane>
+
+    <settingsPane description="MIF/INT representa el interfaz de memoria SoCs y componentes internos."
+                  name="Mif/Int control">' >> $XML
+
+echo "
+      <seekBar description=\"El período de muestreo en la que el monitor DVFS toma la decisión. Por defecto: `cat /sys/devices/system/cpu/busfreq/sampling_rate`µS.\"
+               name=\"sampling_rate\" 
+               action=\"generictag BUS /sys/devices/system/cpu/busfreq/sampling_rate\"
+               unit=\"µS\" min=\"10000\" reversed=\"false\" step=\"5000\" max=\"200000\"/>
+
+      <seekBar description=\"La Unidad de Supervisión del rendimiento de la plataforma (PPMU) recopila información de uso del bus a nivel de hardware de la CPU y los dos controladores de memoria (DMC). Por defecto: `cat /sys/devices/system/cpu/busfreq/load_history_size`.\"
+               name=\"Load history size\" 
+               action=\"generictag BUS /sys/devices/system/cpu/busfreq/load_history_size\"
+               unit=\"samples\" min=\"1\" reversed=\"false\" step=\"1\" max=\"5\"/>
+
+      <seekBar description=\"El umbral máximo por encima del cual DMC se excede la carga media de los controladores de memoria en la última muestra, se establece el paso máximo de OPP. Por defecto: `cat /sys/devices/system/cpu/busfreq/dmc_max_threshold`.\"
+               name=\"DMC maximum threshold\" 
+               action=\"generictag BUS /sys/devices/system/cpu/busfreq/dmc_max_threshold\"
+               unit=\"%\" min=\"1\" reversed=\"false\" step=\"1\" max=\"99\"/>
+
+      <seekBar description=\"El umbral de inactividad, que, si el controlador de memoria cae por debajo de ella, reduce el paso de OPP por un paso. Si la carga cae en activo entre el umbral de inactividad y el umbral máximo de DMC, el promedio DMC la carga sobre el tamaño de historia de carga son tomadas y se normaliza a la frecuencia máxima de OPP. Por defecto: `cat /sys/devices/system/cpu/busfreq/idle_threshold`.\"
+               name=\"Idle threshold\" 
+               action=\"generictag BUS /sys/devices/system/cpu/busfreq/idle_threshold\"
+               unit=\"%\" min=\"1\" reversed=\"false\" step=\"1\" max=\"50\"/>
+
+      <seekBar description=\"El umbral del bus de CPU máximo por encima del cual se supera la carga del bus de la CPU sobre la última muestra, se establece el paso máximo de OPP. Por defecto: `cat /sys/devices/system/cpu/busfreq/max_cpu_threshold`.\"
+               name=\"Maximum CPU bus threshold\" 
+               action=\"generictag BUS /sys/devices/system/cpu/busfreq/max_cpu_threshold\"
+               unit=\"%\" min=\"1\" reversed=\"false\" step=\"1\" max=\"99\"/>
+
+      <seekBar description=\"El bus de la CPU hasta el umbral, en realidad actúa como umbral delimitador de clases, si la carga excede up_threshold pero no supera el umbral máximo de la CPU, que toma en cuenta el tamaño de la carga de la CPU y baja un paso, si la condición pendiente no se cumple, la frecuencia del bus de la CPU se queda igual. Por defecto: `cat /sys/devices/system/cpu/busfreq/up_cpu_threshold`.\"
+               name=\"Up CPU threshold\" 
+               action=\"generictag BUS /sys/devices/system/cpu/busfreq/up_cpu_threshold\"
+               unit=\"%\" min=\"1\" reversed=\"false\" step=\"1\" max=\"99\"/>
+
+      <seekBar description=\"CPU tamaño pendiente se define por la diferencia de carga de la muestra actual a la muestra anterior. Si la pendiente supera el valor establecido, la frecuencia del bus de CPU de destino se baja solo un paso. Por defecto: `cat /sys/devices/system/cpu/busfreq/cpu_slope_size`.\"
+               name=\"CPU slope size\" 
+               action=\"generictag BUS /sys/devices/system/cpu/busfreq/cpu_slope_size\"
+               unit=\"%\" min=\"1\" reversed=\"false\" step=\"1\" max=\"50\"/>
+
+" >> $XML
+
+echo  '
+    </settingsPane>
+    <settingsPane description="Modifica los Voltajes Internos del BUS"
+                  name="Internal voltage">'>> $XML
+
+while read FREQ VOLT; do
+  S_FREQ=`echo $FREQ | cut -c 4-`
+  evalcmd='eval echo \$INT_$S_FREQ'
+  if [ "a`eval $evalcmd`" == "a" ]; then
+    eval "INT_$S_FREQ=$VOLT"
+    echo "<seekBar  description=\"Default voltage: $VOLTµV\" 
+	          name=\"${S_FREQ} MHz step\" 
+                  action=\"intvolt ${S_FREQ}\"
+                  unit=\"µV\" min=\"600000\" reversed=\"false\" step=\"12500\" max=\"1150000\"/>" >> $XML
+  fi
+done < /sys/devices/system/cpu/busfreq/int_volt_table
+
+echo  '
+    </settingsPane>
+    <settingsPane description="Modifica los Voltajes de la Memoria del BUS"
+                  name="Memory voltage">'>> $XML
+
+while read FREQ VOLT; do
+  S_FREQ=`echo $FREQ | cut -c 1-3`
+  evalcmd='eval echo \$MIF_$S_FREQ'
+  if [ "a`eval $evalcmd`" == "a" ]; then
+    eval "MIF_$S_FREQ=$VOLT"
+    echo "<seekBar  description=\"Default voltage: $VOLTµV\" 
+	          name=\"${S_FREQ} MHz step\" 
+                  action=\"mifvolt ${S_FREQ}\"
+                  unit=\"µV\" min=\"750000\" reversed=\"false\" step=\"50000\" max=\"1100000\"/>" >> $XML
+  fi
+done < /sys/devices/system/cpu/busfreq/mif_volt_table
+
+echo '
+    </settingsPane>
+  </settingsTab>
+
+  <settingsTab name="GPU">
+
+    <settingsPane description="Aplicar la configuración de arranque sólo si la que desea llega a ser estable, de lo contrario el equipo termina en un Bucle de reinicios o directamente no arrancará. Si se desactiva, los valores mostrados no corresponden a los valores reales actuales, los valores correctos de los perfiles están guardados" 
+                  name="GPU control switch">
+      <checkbox description="Si está activado, los ajustes siguientes se aplicarán en el arranque." 
+                name="Establecer voltajes de la GPU en el arranque" 
+                action="controlswitch GPU" 
+                label="Establecer en el arranque"/>
+    </settingsPane>' >> $XML
+
+echo "
+    <settingsPane description=\"Al editar los siguientes ajustes, podrá cambiar completamente el comportamiento y el rendimiento de la GPU.\" 
+                  name=\"GPU scaling settings\">
+
+      <spinner description=\"Establece la frecuencia máxima de las escalas GPU. Por defecto: `cat /sys/devices/system/gpu/max_freq`MHz.\" 
+               name=\"GPU max frequency\" 
+               action=\"gpugeneric /sys/devices/system/gpu/max_freq\">" >> $XML
+
+while read FREQ; do
+  echo "<spinnerItem name=\"$FREQ MHz\" value=\"$FREQ\"/>" >> $XML
+done < /sys/devices/system/gpu/freq_table
+
+echo "
+      </spinner>
+      <spinner description=\"Establece la frecuencia mínima de las escalas GPU. Por defecto: `cat /sys/devices/system/gpu/min_freq`MHz.\" 
+               name=\"GPU min frequency\" 
+               action=\"gpugeneric /sys/devices/system/gpu/min_freq\">" >> $XML
+
+while read FREQ; do
+  echo "
+        <spinnerItem name=\"$FREQ MHz\" value=\"$FREQ\"/>" >> $XML
+done < /sys/devices/system/gpu/freq_table
+
+echo '
+      </spinner>' >> $XML
+
+read trash1 UP trash2 DIFF < /sys/devices/system/gpu/thresholds
+
+echo "
+     <seekBar  description=\"Si la carga en el último período de muestreo superó el porcentaje umbral establecido, la CPU salta al siguiente paso de frecuencia más alta. Por defecto: ${UP}%.\" 
+               name=\"Up threshold\" 
+               action=\"gputhresholds UP\" 
+               unit=\"%\" min=\"30\" reversed=\"false\" step=\"1\" max=\"99\"/>" >> $XML
+
+echo "
+     <seekBar  description=\"Si la carga cae por debajo (up threshold - down differential), la GPU reduce dinámicamente su reloj abajo a un paso de frecuencia. El diferencial de bajada no puede ser superior a (99 - up threshold). Por defecto: ${DIFF}%.\"
+               name=\"Down differential\" 
+               action=\"gputhresholds DIFF\" 
+               unit=\"%\" min=\"1\" reversed=\"false\" step=\"1\" max=\"50\"/>" >> $XML
+
+echo "
+     <seekBar  description=\"Tiempor de espera entre la lógica DVFS de la utilización GPU. Por defecto: `cat /sys/devices/system/gpu/utilization_timeout`.\"
+               name=\"Utilization timeout\" 
+               action=\"gpugeneric /sys/devices/system/gpu/utilization_timeout\" 
+               unit=\"ms\" min=\"25\" reversed=\"false\" step=\"25\" max=\"1000\"/>" >> $XML
+
+echo '
+    </settingsPane>
+    <settingsPane description="" name="GPU voltage control">' >> $XML
+
+while read FREQ VOLT; do
+  echo "<seekBar  description=\"Default voltage: $VOLT\" 
+	          name=\"${FREQ%???} MHz step\" 
+                  action=\"gpuvolt ${FREQ%???}\"
+                  unit=\" mV\" min=\"600\" reversed=\"false\" step=\"25\" max=\"1300\"/>" >> $XML
+done < /sys/devices/system/gpu/volt_table
+
+echo '
+    </settingsPane>' >> $XML
+echo '
+  </settingsTab>
+
+  <settingsTab name="ABB">
+    <settingsPane description="Adaptive Body Bias es un voltaje secundario que se aplica sobre el cuerpo del transistor, donde el voltaje normal es el voltaje de entrada. El Ajuste del Voltaje del cuerpo en un diferencial al voltaje de entrada cambia las características del transistor en la forma en como este cambia. La tendencia de cuerpo es el delta del voltaje de cuerpo al voltaje de entrada, o diferencia entre voltaje de entrada menos voltaje de cuerpo. Una tendencia de cuerpo positiva causa una Tendencia de Cuerpo Avanzada (FBB) que baja el transistor que cambia el umbral y da lugar a relojes más altos en el mismo voltaje, o voltaje inferior en los mismos relojes. Una tendencia de cuerpo negativa, o la Tendencia de Cuerpo Inversa (RBB) levanta el umbral de conmutación y drásticamente puede mejorar la salida, pero con los efectos inversos de FBB en términos de voltaje y relojes. ADVERTENCIA: Sólo para usuarios avanzados que entiendan la física eléctrica y todo lo que la rodea."  
+                  name="Adaptive Body Bias">
+    </settingsPane>' >> $XML
+
+echo "
+    <settingsPane description=\"ARM (CPU) body bias voltages.\"
+                  name=\"CPU\">
+     <seekBar  description=\"Slice 1 frequencias: ..`cat /sys/devices/system/abb/arm/arm_slice_1_freq`].\"
+               name=\"Slice 1 voltage\"
+               action=\"generic /sys/devices/system/abb/arm/arm_slice_1_volt\" 
+               unit=\"mV\" min=\"600\" reversed=\"false\" step=\"50\" max=\"1600\"/>
+
+     <seekBar  description=\"Slice 2 frequencias: ..`cat /sys/devices/system/abb/arm/arm_slice_2_freq`].\"
+               name=\"Slice 2 voltage\"
+               action=\"generic /sys/devices/system/abb/arm/arm_slice_2_volt\" 
+               unit=\"mV\" min=\"600\" reversed=\"false\" step=\"50\" max=\"1600\"/>
+
+     <seekBar  description=\"Slice 3 frequencias: ..`cat /sys/devices/system/abb/arm/arm_slice_3_freq`].\"
+               name=\"Slice 3 voltage\"
+               action=\"generic /sys/devices/system/abb/arm/arm_slice_3_volt\" 
+               unit=\"mV\" min=\"600\" reversed=\"false\" step=\"50\" max=\"1600\"/>
+
+     <seekBar  description=\"Slice 4 frequencias: ]`cat /sys/devices/system/abb/arm/arm_slice_3_freq`.. .\"
+               name=\"Slice 4 voltage\"
+               action=\"generic /sys/devices/system/abb/arm/arm_slice_4_volt\" 
+               unit=\"mV\" min=\"600\" reversed=\"false\" step=\"50\" max=\"1600\"/>
+
+    </settingsPane>
+
+    <settingsPane description=\"G3D (GPU) body bias voltages.\"
+                  name=\"GPU\">
+     <seekBar  description=\"Slice 1 frequencies: ..`cat /sys/devices/system/abb/g3d/g3d_slice_1_freq`].\"
+               name=\"Slice 1 voltage\"
+               action=\"generic /sys/devices/system/abb/g3d/g3d_slice_1_volt\" 
+               unit=\"mV\" min=\"600\" reversed=\"false\" step=\"50\" max=\"1600\"/>
+
+     <seekBar  description=\"Slice 2 frequencies: ..`cat /sys/devices/system/abb/g3d/g3d_slice_2_freq`].\"
+               name=\"Slice 2 voltage\"
+               action=\"generic /sys/devices/system/abb/g3d/g3d_slice_2_volt\" 
+               unit=\"mV\" min=\"600\" reversed=\"false\" step=\"50\" max=\"1600\"/>
+
+     <seekBar  description=\"Slice 3 frequencies: ]`cat /sys/devices/system/abb/g3d/g3d_slice_2_freq`.. .\"
+               name=\"Slice 3 voltage\"
+               action=\"generic /sys/devices/system/abb/g3d/g3d_slice_3_volt\" 
+               unit=\"mV\" min=\"600\" reversed=\"false\" step=\"50\" max=\"1600\"/>
+
+    </settingsPane>
+
+    <settingsPane description=\"MIF (Memory interface) body bias voltages.\"
+                  name=\"MIF\">
+     <seekBar  description=\"Slice 1 frequencies: ..`cat /sys/devices/system/abb/mif/mif_slice_1_freq`].\"
+               name=\"Slice 1 voltage\"
+               action=\"generic /sys/devices/system/abb/mif/mif_slice_1_volt\" 
+               unit=\"mV\" min=\"600\" reversed=\"false\" step=\"50\" max=\"1600\"/>
+
+     <seekBar  description=\"Slice 2 frequencies: ]`cat /sys/devices/system/abb/mif/mif_slice_1_freq`.. .\"
+               name=\"Slice 2 voltage\"
+               action=\"generic /sys/devices/system/abb/mif/mif_slice_2_volt\" 
+               unit=\"mV\" min=\"600\" reversed=\"false\" step=\"50\" max=\"1600\"/>
+
+    </settingsPane>
+
+    <settingsPane description=\"INT (Internal SoC) body bias voltages.\"
+                  name=\"INT\">
+     <seekBar  description=\"Slice 1 frequencies: ..`cat /sys/devices/system/abb/int/int_slice_1_freq`].\"
+               name=\"Slice 1 voltage\"
+               action=\"generic /sys/devices/system/abb/int/int_slice_1_volt\" 
+               unit=\"mV\" min=\"600\" reversed=\"false\" step=\"50\" max=\"1600\"/>
+
+     <seekBar  description=\"Slice 2 frequencies: ]`cat /sys/devices/system/abb/int/int_slice_1_freq`.. .\"
+               name=\"Slice 2 voltage\"
+               action=\"generic /sys/devices/system/abb/int/int_slice_2_volt\" 
+               unit=\"mV\" min=\"600\" reversed=\"false\" step=\"50\" max=\"1600\"/>
+
+    </settingsPane>
+" >> $XML
+
+echo '
+  </settingsTab>
+
+  <settingsTab name="I/O">
+    <settingsPane description="Seeleccione el I/O schedulers que mas se ajuste a sus necesidades, por defecto Lonas_KL usa ROW.."  
+                  name="I/O schedulers">' >> $XML
+
+echo "
+      <spinner name=\"Current internal storage scheduler\"
+               action=\"iosched internal /sys/block/mmcblk0/queue/scheduler\">" >> $XML
+
+for IOSCHED in `cat /sys/block/mmcblk0/queue/scheduler | sed -e 's/\]//;s/\[//'`; do
+  echo "
+        <spinnerItem name=\"$IOSCHED\" value=\"$IOSCHED\"/>" >> $XML
+done
+
+echo '
+      </spinner>' >> $XML
+
+echo "
+      <spinner name=\"Current SD card scheduler\"
+               action=\"iosched sd /sys/block/mmcblk1/queue/scheduler\">" >> $XML
+
+for IOSCHED in `cat /sys/block/mmcblk1/queue/scheduler | sed -e 's/\]//;s/\[//'`; do
+  echo "
+        <spinnerItem name=\"$IOSCHED\" value=\"$IOSCHED\"/>" >> $XML
+done
+
+echo '
+      </spinner>
+    </settingsPane>
+
+    <settingsPane name="I/O read-ahead" 
+                  description="Aumentar velocidad de lectura y escritura.">
+
+      <seekBar  description="El valor de lectura y escritura en la memoria interna del teléfono" 
+                name="Internal storage read-ahead" 
+                action="generictagforce internal /sys/block/mmcblk0/queue/read_ahead_kb"
+                unit="kB" min="128" reversed="false" step="128" max="2048"/>
+
+      <seekBar  description="El valor de lectura y escritura en la memoria externa (SD card)." 
+                name="SD card read-ahead" 
+                action="generictagforce sd /sys/block/mmcblk1/queue/read_ahead_kb"
+                unit="kB" min="128" reversed="false" step="128" max="2048"/>
+
+    </settingsPane>
+
+    <settingsPane name="Min Free kbytes" 
+                  description="Modificando el valor (en bytes) de /proc/sys/vm/min_free_kbytes, lo que hacemos es redefinir el espacio de memoria libre de que dispone el kernel para cuando la necesita para el sistema, abrir una app, etc.. Lo que hace este ajuste es reservar un mínimo de memoria para el propio sistema. Valores recomendados: 1448k, 2048k, 2896k, 3642k, 4096k, 5792k, 8192k, 11584k, 12360k, 16284k y 18360k. Dependerá de este valor el rendimiento de tu sistema">
+
+      <seekBar  description="El mínimo a poder seleccionar es 1448k y el máximo 18360k. Por defecto: 4096 kbytes." 
+                name="Min Free kbytes" 
+                action="generic /proc/sys/vm/min_free_kbytes"
+                unit="%" min="1448" reversed="false" step="1" max="18360"/>
+
+    </settingsPane>
+
+    <settingsPane name="OOM Allocating task" 
+                  description="Este parámetro es algo delicado, activarlo podría aumentar el rendimiento pero también podría consumir bastante mas memoria, Estando desactivado, este explorará a través de toda la lista de tareas y seleccionará una tarea basada en la heurística para matar. Normalmente selecciona una tarea de memoria que esté acaparando toda la memoria o la mayor parte de ella y liberará una gran cantidad de memoria al matarla. En resumen, estando desactivado esto, matará a la tarea que esté acaparando la memoria de manera intensiva. Si tenéis problemas  con aplicaciones que se cierran sin mas, Activarlo de nuevo">
+     
+      <checkbox description="Por Defecto: Desactivado" 
+                name="Activar OOM Allocating task" 
+                action="generic01 /proc/sys/vm/oom_kill_allocating_task"
+                label="Activar OOM Allocating task"/>
+
+    </settingsPane>
+
+    <settingsPane name="VFS Cache Pressure" 
+                  description="Un valor muy bajo puede causar pérdida de memoria y lentitud, por contra un valor muy alto valor gastará mucha mas batería, lo idea es encontrar algo intermedio.">
+     
+      <seekBar  description="Por defecto: 50." 
+                name="VFS Cache Pressure" 
+                action="generic /proc/sys/vm/vfs_cache_pressure"
+                unit="%" min="0" reversed="false" step="1" max="100"/>
+
+    </settingsPane>
+
+    <settingsPane name="Dynamic FSync" 
+                  description="fsync() Sirve como un flush/commit en el búfer de escritura al hacer I/O, escribe al almacenamiento. Se almacena una memoria intermedia con datos y escribe periódicamente en el dispositivo de almacenamiento. Desactivando esto ya no hará esto y directamente escribirá los datos.">
+
+      <checkbox description="Dynamic FSync disables file write synchronosity during screen-on, and re-enables it on screen-off." 
+                name="Activar dynamic FSync" 
+                action="generic01 /sys/kernel/dyn_fsync/Dyn_fsync_active"
+                label="Activar dynamic FSync"/>
+
+    </settingsPane>
+  </settingsTab>
+
+  <settingsTab name="LED/MDNIE">
+    <settingsPane name="LED fading" 
+                  description="Led Fading"> 
+
+      <checkbox description="Ahora podrás activar si deseas el LED frontal con FADE o sin FADE."
+                name="Activar o Desactivar FADE" 
+                action="generic01 /sys/class/sec/led/led_fade"
+                label="Activar LED-Fading"/>
+
+   </settingsPane>
+
+    <settingsPane name="Mdnie sharpness fix" 
+                  description="Mdnie sharpness fix no es mas que un FIX creado por Hardcore para la pantalla y que mejora la legibilidad del texto.">
+
+      <checkbox description="Mdnie sharpness fix" 
+                name="Activar o Desactivar el FIX" 
+                action="generic01 /sys/class/misc/mdnie_preset/mdnie_preset"
+                label="Activar FIX"/>
+
+    </settingsPane>
+  </settingsTab>
+
+</settingsRoot>' >> $XML
+
+chmod 777 $XML
