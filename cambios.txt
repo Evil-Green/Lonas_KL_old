@@ -34,13 +34,12 @@ Cambios realizados a día 17/05/2013
 28. ARM: decompressor: Enable unaligned memory access for v6 and above
 29. buqfreq: Use cpu_load_slope correctly
 30. lib/lzo: Update LZO compression to current upstream version
-31. tmpfs: fix mempolicy object leaks
-32. lowmemorykiller: Add config option to support oom_adj values
-33. mali: reduce utilization sampling timeout
-34. mmc: core: Fix possbile memory leak
-35. mdnie: black crush fix
-36. mdnie: Switchable sharpness fix
-37. leds-an30259a: LED fading/blinking support
+31. lowmemorykiller: Add config option to support oom_adj values
+32. mali: reduce utilization sampling timeout
+33. mmc: core: Fix possbile memory leak
+34. mdnie: black crush fix
+35. mdnie: Switchable sharpness fix
+36. leds-an30259a: LED fading/blinking support
 --------------------------------------------------
 
 Gracias a la cantidad de utilidades aportadas a la comunidad, modificaciones, añadidos, etc.. Así como la ayuda prestada en alguna ocasión por compañeros aquí citados.
