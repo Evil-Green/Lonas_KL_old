@@ -1,8 +1,8 @@
 
-Kernel Lonas_KL 3.5-c versión Stock
+Kernel Lonas_KL 3.5-d versión Stock
 
 ------------------------------------------------
-Cambios realizados a día 17/05/2013
+Cambios realizados a día 18/05/2013
 
 1.  Source Update Linux 3.0.78 - Thanks Perka
 2.  toolchain: Prepare for non-stock 4.4.3 toolchains
@@ -41,6 +41,17 @@ Cambios realizados a día 17/05/2013
 35. mdnie: Switchable sharpness fix
 36. leds-an30259a: LED fading/blinking support
 37. Añadido asignador de memoria SLQB
+38. Añadido memcopy
+39. smdk4412: s3cfb_s6e8ax0: Stop fb shitstorm in kmsg
+40. sched: Añadida llamada faltante calc_load_exit_idle()
+41. sched/nohz: cálculo de load-avg mas preciso
+42. Añadido Controlador J4FS
+43. mali: Evitar entrar en bucle
+44. mach-midas: aumentado algunos límites
+45. mali: actualizar la potencia de la CPU según la carga de la CPU
+46. RCU: Joe's RCU
+47. Añadido Frandom, generador de números aleatorios
+48. random: entropy tweaks are all the rage nowadays
 --------------------------------------------------
 
 Gracias a la cantidad de utilidades aportadas a la comunidad, modificaciones, añadidos, etc.. Así como la ayuda prestada en alguna ocasión por compañeros aquí citados.
