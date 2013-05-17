@@ -1,5 +1,5 @@
 
-Kernel Lonas_KL 3.5-b versión Stock
+Kernel Lonas_KL 3.5-c versión Stock
 
 ------------------------------------------------
 Cambios realizados a día 17/05/2013
@@ -40,6 +40,7 @@ Cambios realizados a día 17/05/2013
 34. mdnie: black crush fix
 35. mdnie: Switchable sharpness fix
 36. leds-an30259a: LED fading/blinking support
+37. Añadido asignador de memoria SLQB
 --------------------------------------------------
 
 Gracias a la cantidad de utilidades aportadas a la comunidad, modificaciones, añadidos, etc.. Así como la ayuda prestada en alguna ocasión por compañeros aquí citados.
