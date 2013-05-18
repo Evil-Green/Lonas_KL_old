@@ -774,44 +774,6 @@ static irqreturn_t mms_ts_interrupt(int irq, void *dev_id)
 		}
 
 #ifdef CONFIG_TOUCHSCREEN_GESTURES
-			if (track_gestures) {
-				// When a finger is released and its movement was not completed yet, reset it
-				spin_lock_irqsave(&gestures_lock, flags);
-				for (gesture_no = 0; gesture_no <= max_configured_gesture; gesture_no++) {
-					if (gestures_detected[gesture_no])
-						// Ignore gestures already reported
-						continue;
-
-					for (finger_no = 0; finger_no <= max_gesture_finger[gesture_no]; finger_no++) {
-						if (gesture_fingers[gesture_no][finger_no].finger_order == i) {
-							// Found a match for ongoing movement
-							// Reset the finger progress if path not completed
-							if (gesture_fingers[gesture_no][finger_no].current_step <
-							    gestures_step_count[gesture_no][finger_no]) {
-								gesture_fingers[gesture_no][finger_no].finger_order = -1;
-								gesture_fingers[gesture_no][finger_no].current_step = -1;
-							}
-							break;
-						}
-					}
-				}
-				spin_unlock_irqrestore(&gestures_lock, flags);
-			}
-#endif
-
-				dev_notice(&client->dev,
-					"finger [%d] up, palm %d\n", id, palm);
-			}
-#endif
-			input_mt_slot(info->input_dev, id);
-			input_mt_report_slot_state(info->input_dev,
-						   MT_TOOL_FINGER, false);
-
-			info->finger_state[id] = 0;
-			continue;
-		}
-
-#ifdef CONFIG_TOUCHSCREEN_GESTURES
 		if (track_gestures) {
 			// Finger being moved, check the gesture steps progress
 			spin_lock_irqsave(&gestures_lock, flags);
