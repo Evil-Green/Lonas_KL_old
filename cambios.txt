@@ -51,8 +51,8 @@ Cambios realizados a día 18/05/2013
 45. Añadido Frandom, generador de números aleatorios
 46. random: entropy tweaks are all the rage nowadays
 48. boot: Activado Compresor XZ
-49. Añadido asignador de memoria SLQB
-50. Desactivado SLUB y Activado SLQB en defconfig
+49. Añadido asignador de memoria SLQB (desactivado)
+50. Corregido compresor XZ
 --------------------------------------------------
 
 Gracias a la cantidad de utilidades aportadas a la comunidad, modificaciones, añadidos, etc.. Así como la ayuda prestada en alguna ocasión por compañeros aquí citados.

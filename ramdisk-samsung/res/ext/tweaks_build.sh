@@ -19,8 +19,8 @@ setprop ro.media.dec.jpeg.memcap 8000000
 setprop ro.media.enc.hprof.vid.bps 8000000
 setprop ro.media.dec.aud.wma.enabled 1
 setprop ro.media.dec.vid.wmv.enabled 1
-setprop ro.media.cam.preview.fps 0
-setprop ro.media.codec_priority_for_thumb so
+#setprop ro.media.cam.preview.fps 0
+#setprop ro.media.codec_priority_for_thumb so
 
 # Disminuir el retardo mientra se realiza una llamada
 setprop ro.telephony.call_ring.delay 0
