@@ -1,8 +1,8 @@
 
-Kernel Lonas_KL 3.5-e versión Stock
+Kernel Lonas_KL 3.5-f versión Stock
 
 ------------------------------------------------
-Cambios realizados a día 18/05/2013
+Cambios realizados a día 19/05/2013
 
 1.  Source Update Linux 3.0.78 - Thanks Perka
 2.  toolchain: Prepare for non-stock 4.4.3 toolchains
@@ -50,9 +50,14 @@ Cambios realizados a día 18/05/2013
 44. RCU: Joe's RCU
 45. Añadido Frandom, generador de números aleatorios
 46. random: entropy tweaks are all the rage nowadays
-48. boot: Activado Compresor XZ
-49. Añadido asignador de memoria SLQB (desactivado)
-50. Corregido compresor XZ
+47. boot: Activado Compresor XZ
+48. Añadido asignador de memoria SLQB (desactivado)
+49. Corregido compresor XZ
+50. Fix Linaro (Soporte Linaro 4.7/4.8)
+51. readahead: introducir FMODE_RANDOM en POSIX_FADV_RANDOM
+52. Añadido TOUCHSCREEN_GESTURES
+53. Optimizando TOUCHSCREEN_GESTURES
+
 --------------------------------------------------
 
 Gracias a la cantidad de utilidades aportadas a la comunidad, modificaciones, añadidos, etc.. Así como la ayuda prestada en alguna ocasión por compañeros aquí citados.

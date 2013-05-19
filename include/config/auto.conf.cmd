@@ -347,6 +347,7 @@ deps_config := \
 	drivers/media/video/exynos/fimc-lite/Kconfig \
 	drivers/media/video/exynos/mdev/Kconfig \
 	drivers/media/video/exynos/Kconfig \
+	drivers/media/video/samsung/media_monitor/Kconfig \
 	drivers/media/video/samsung/jpeg_v2x/Kconfig \
 	drivers/media/video/samsung/jpeg/Kconfig \
 	drivers/media/video/samsung/fimg2d4x-exynos4/Kconfig \
