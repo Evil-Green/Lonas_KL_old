@@ -2245,7 +2245,7 @@ void __init midas_tsp_init(void)
 #ifdef CONFIG_CPU_FREQ_GOV_ONDEMAND_FLEXRATE
 static void flexrate_work(struct work_struct *work)
 {
-	cpufreq_ondemand_flexrate_request(12500, 8);
+	cpufreq_ondemand_flexrate_request(10000, 10);
 }
 
 #include <linux/pm_qos_params.h>
@@ -2266,13 +2266,13 @@ void midas_tsp_request_qos(void *data)
 	/* Guarantee that the bus runs at >= 266MHz */
 	if (!pm_qos_request_active(&busfreq_qos))
 		pm_qos_add_request(&busfreq_qos, PM_QOS_BUS_DMA_THROUGHPUT,
-				   266160);
+				   266000);
 	else {
 		cancel_delayed_work_sync(&busqos_work);
-		pm_qos_update_request(&busfreq_qos, 266160);
+		pm_qos_update_request(&busfreq_qos, 266000);
 	}
 
 	/* Cancel the QoS request after 1/10 sec */
-	schedule_delayed_work_on(0, &busqos_work, HZ / 7);
+	schedule_delayed_work_on(0, &busqos_work, HZ / 5);
 }
 #endif
