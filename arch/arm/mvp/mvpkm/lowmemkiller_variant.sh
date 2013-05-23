@@ -41,16 +41,7 @@ sed -i -e 's/.*\(intother_file.*other_file<\).*/;\1/' \
        -e 's/[;][^;]*other_file[^;]*/#<#&#>#/g' \
        -e 's/#>#[^#]*//g' $tmp_file
 
-# Detect MD5SUM executable
-HOST_OS=`uname -s`
-if [ "$HOST_OS" == "Darwin" ]
-then
-  MD5SUM_EXEC=md5
-else
-  MD5SUM_EXEC=md5sum
-fi
-
-MD5=`${MD5SUM_EXEC} $tmp_file | cut -f1 -d\ `
+MD5=`md5sum $tmp_file | cut -f1 -d\ `
 
 rm $tmp_file
 
