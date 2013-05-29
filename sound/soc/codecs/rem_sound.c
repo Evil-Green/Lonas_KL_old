@@ -1,7 +1,7 @@
 /*
- * Author Rem Sound: javilonas, 16.05.2013
+ * Author Rem Sound: javilonas, 29.05.2013
  *
- * Version 0.6
+ * Version 0.7
  *
  * Based on the source of Boeffla sound created by andip71
  * Código fuente original del Motor de sonido: https://github.com/andip71/boeffla-kernel-jb-u7-s3/tree/master/sound/soc/codecs

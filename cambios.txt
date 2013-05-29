@@ -1,65 +1,19 @@
 
-Kernel Lonas_KL 3.5-e versión Stock
+Kernel Lonas_KL 3.6 versión Stock
 
 ------------------------------------------------
-Cambios realizados a día 18/05/2013
+Cambios realizados a día 27/05/2013
 
-1.  Source Update Linux 3.0.78 - Thanks Perka
-2.  toolchain: Prepare for non-stock 4.4.3 toolchains
-3.  toolchain: Optimizado y preparado para 4.7
-4.  VFP: Utilizar neon en vez de VFP
-5.  Fix Soporte Exfat
-6.  Soporte CIFS, NFS, NTFS
-7.  Controlador Rem Sound 0.6
-8.  block: ROW scheduler v4
-9.  cpufreq: Lonas governor
-10. Lonas: Eliminado límite Cores
-11. Carga Rápida USB - 900mA
-12. ARM: 7011/1: Add ARM cpu topology definition
-13. sched_features: enable arch_power
-14. Soporte Triangle Away
-15. Eliminar el registro de depuración para algunos controladores
-16. samsung-battery: Reduce battery-monitor wakelock timeouts
-17. dyn_sync_cntrl: dynamic sync control 1.1
-18. mmc-core: aumentado el tiempo límite de espera para SD malas (mala calidad)
-19. binfmt_elf: use get_random_int() to fix entropy depleting
-20. tcp: Proportional Rate Reduction for TCP
-21. drivers: mmc: Desactivado CRC
-22. Network Speed Tweak
-23. mach-exynos: Don't compile unused 4210 objects on 4x12
-24. Optimized ARM RWSEM algorithm
-25. Soporte compresor/descompresor SNAPPY
-26. mms_ts: disable debug
-27. Mejorada transferencia de escritura y lectura
-28. ARM: decompressor: Enable unaligned memory access for v6 and above
-29. buqfreq: Use cpu_load_slope correctly
-30. lib/lzo: Update LZO compression to current upstream version
-31. lowmemorykiller: Add config option to support oom_adj values
-32. mali: reduce utilization sampling timeout
-33. mmc: core: Fix possbile memory leak
-34. mdnie: black crush fix
-35. mdnie: Switchable sharpness fix
-36. leds-an30259a: LED fading/blinking support
-37. Añadido memcopy
-38. smdk4412: s3cfb_s6e8ax0: Stop fb shitstorm in kmsg
-39. sched: Añadida llamada faltante calc_load_exit_idle()
-40. sched/nohz: cálculo de load-avg mas preciso
-41. Añadido Controlador J4FS
-42. mach-midas: aumentado algunos límites
-43. mali: actualizar la potencia de la CPU según la carga de la CPU
-44. RCU: Joe's RCU
-45. Añadido Frandom, generador de números aleatorios
-46. random: entropy tweaks are all the rage nowadays
-48. boot: Activado Compresor XZ
-49. Añadido asignador de memoria SLQB (desactivado)
-50. Corregido compresor XZ
+1.   Actualizado Kernel a Linux 3.0.80
+2.   Desactivado CONFIG_CC_OPTIMIZE_FOR_SIZE
+3.   Actualizados Módulos exFAT (proprietary-modules)
 --------------------------------------------------
 
-Gracias a la cantidad de utilidades aportadas a la comunidad, modificaciones, añadidos, etc.. Así como la ayuda prestada en alguna ocasión por compañeros aquí citados.
+Gracias a la cantidad de utilidades aportadas a la comunidad, modificaciones, parches, añadidos, etc.. Así como la ayuda prestada en alguna ocasión por compañeros aquí citados.
 
-Quiero dar mis Agradecimientos y mis respetos a: 
+Quiero dar mi Agradecimiento a: 
 
-Samsung, perka, yank555-lu, AndreiLux, andip71, gokhanmoral, alanorth, NeoPhyTe-x360, franciscofranco, Ezekeel, François, simone201, fenomeno83, zanezam, Vincent Guittot, Hardcore, CruzBishop, Andreas Kemnade, faux123, Alex Shi...
+Samsung, perka, yank555-lu, AndreiLux, andip71, gokhanmoral, alanorth, NeoPhyTe-x360, temasek, franciscofranco, Ezekeel, François, simone201, fenomeno83, zanezam, Vincent Guittot, Hardcore, CruzBishop, Andreas Kemnade, faux123, Alex Shi...
 
 Y alguno más que seguro no recuerdo ahora ;)
 
