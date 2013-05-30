@@ -163,12 +163,12 @@ static unsigned int get_nr_run_avg(void)
 
 #define DEF_SAMPLING_DOWN_FACTOR		(2)
 #define MAX_SAMPLING_DOWN_FACTOR		(100000)
-#define DEF_FREQUENCY_DOWN_DIFFERENTIAL		(10)
+#define DEF_FREQUENCY_DOWN_DIFFERENTIAL		(5)
 #define DEF_FREQUENCY_UP_THRESHOLD		(70)
 #define DEF_FREQUENCY_MIN_SAMPLE_RATE		(10000)
 #define MIN_FREQUENCY_UP_THRESHOLD		(11)
 #define MAX_FREQUENCY_UP_THRESHOLD		(100)
-#define DEF_SAMPLING_RATE			(60000)
+#define DEF_SAMPLING_RATE			(50000)
 #define MIN_SAMPLING_RATE			(10000)
 #define MAX_HOTPLUG_RATE			(40u)
 
@@ -176,17 +176,17 @@ static unsigned int get_nr_run_avg(void)
 #define DEF_MIN_CPU_LOCK			(0)
 #define DEF_CPU_UP_FREQ				(500000)
 #define DEF_CPU_DOWN_FREQ			(200000)
-#define DEF_CPU_MAX_FREQ_1			(1600000) /*  CPU freq. limit running on 1 core */
-#define DEF_CPU_MAX_FREQ_2			(1600000) /*  CPU freq. limit running on 2 cores */
-#define DEF_CPU_MAX_FREQ_3			(1600000) /*  CPU freq. limit running on 3 cores */
-#define DEF_CPU_MAX_FREQ_4			(1600000) /*  CPU freq. limit running on 4 cores */
+#define DEF_CPU_MAX_FREQ_1			(1000000) /*  CPU freq. limit running on 1 core */
+#define DEF_CPU_MAX_FREQ_2			(1100000) /*  CPU freq. limit running on 2 cores */
+#define DEF_CPU_MAX_FREQ_3			(1200000) /*  CPU freq. limit running on 3 cores */
+#define DEF_CPU_MAX_FREQ_4			(1400000) /*  CPU freq. limit running on 4 cores */
 #define DEF_UP_NR_CPUS				(1)
 #define DEF_CPU_UP_RATE				(10)
 #define DEF_CPU_DOWN_RATE			(20)
-#define DEF_FREQ_STEP				(60)
+#define DEF_FREQ_STEP				(37)
 #define DEF_START_DELAY				(0)
 
-#define UP_THRESHOLD_AT_MIN_FREQ		(65)
+#define UP_THRESHOLD_AT_MIN_FREQ		(40)
 #define FREQ_FOR_RESPONSIVENESS			(400000)
 
 #define HOTPLUG_DOWN_INDEX			(0)
@@ -196,25 +196,25 @@ static unsigned int get_nr_run_avg(void)
 
 #ifdef CONFIG_MACH_MIDAS
 static int hotplug_rq[4][2] = {
-	{0, 175}, {175, 275}, {275, 375}, {375, 0}
+	{0, 350}, {350, 400}, {400, 500}, {500, 0}
 };
 
 static int hotplug_freq[4][2] = {
-	{0, 500000},
-	{200000, 500000},
-	{200000, 700000},
-	{400000, 0}
+	{0, 900000},
+	{800000, 1000000},
+	{900000, 1100000},
+	{1000000, 0}
 };
 #else
 static int hotplug_rq[4][2] = {
-	{0, 100}, {100, 200}, {200, 300}, {300, 0}
+	{0, 350}, {350, 400}, {400, 500}, {500, 0}
 };
 
 static int hotplug_freq[4][2] = {
-	{0, 500000},
-	{200000, 500000},
-	{200000, 500000},
-	{200000, 0}
+	{0, 900000},
+	{800000, 1000000},
+	{900000, 1100000},
+	{1000000, 0}
 };
 #endif
 
@@ -238,6 +238,7 @@ enum {DBS_NORMAL_SAMPLE, DBS_SUB_SAMPLE};
 
 struct cpu_dbs_info_s {
 	cputime64_t prev_cpu_idle;
+	cputime64_t prev_cpu_iowait;
 	cputime64_t prev_cpu_wall;
 	cputime64_t prev_cpu_nice;
 	struct cpufreq_policy *cur_policy;
@@ -271,6 +272,7 @@ static struct dbs_tuners {
 	unsigned int down_differential;
 	unsigned int ignore_nice;
 	unsigned int sampling_down_factor;
+	unsigned int io_is_busy;
 	/* lonas tuners */
 	unsigned int freq_step;
 	unsigned int cpu_up_rate;
@@ -466,6 +468,17 @@ static inline cputime64_t get_cpu_idle_time(unsigned int cpu, cputime64_t *wall)
 	return idle_time;
 }
 
+static inline cputime64_t get_cpu_iowait_time(unsigned int cpu,
+					      cputime64_t *wall)
+{
+	u64 iowait_time = get_cpu_iowait_time_us(cpu, wall);
+
+	if (iowait_time == -1ULL)
+		return 0;
+
+	return iowait_time;
+}
+
 /************************** sysfs interface ************************/
 
 static ssize_t show_sampling_rate_min(struct kobject *kobj,
@@ -484,6 +497,7 @@ static ssize_t show_##file_name						\
 	return sprintf(buf, "%u\n", dbs_tuners_ins.object);		\
 }
 show_one(sampling_rate, sampling_rate);
+show_one(io_is_busy, io_is_busy);
 show_one(up_threshold, up_threshold);
 show_one(sampling_down_factor, sampling_down_factor);
 show_one(ignore_nice_load, ignore_nice);
@@ -580,6 +594,20 @@ static ssize_t store_sampling_rate(struct kobject *a, struct attribute *b,
 	if (ret != 1)
 		return -EINVAL;
 	dbs_tuners_ins.sampling_rate = max(input, min_sampling_rate);
+	return count;
+}
+
+static ssize_t store_io_is_busy(struct kobject *a, struct attribute *b,
+				const char *buf, size_t count)
+{
+	unsigned int input;
+	int ret;
+
+	ret = sscanf(buf, "%u", &input);
+	if (ret != 1)
+		return -EINVAL;
+
+	dbs_tuners_ins.io_is_busy = !!input;
 	return count;
 }
 
@@ -935,6 +963,7 @@ static ssize_t store_dvfs_debug(struct kobject *a, struct attribute *b,
 }
 
 define_one_global_rw(sampling_rate);
+define_one_global_rw(io_is_busy);
 define_one_global_rw(up_threshold);
 define_one_global_rw(sampling_down_factor);
 define_one_global_rw(ignore_nice_load);
@@ -961,6 +990,7 @@ static struct attribute *dbs_attributes[] = {
 	&up_threshold.attr,
 	&sampling_down_factor.attr,
 	&ignore_nice_load.attr,
+	&io_is_busy.attr,
 	&down_differential.attr,
 	&freq_step.attr,
 	&cpu_up_rate.attr,
@@ -1237,17 +1267,19 @@ static void dbs_check_cpu(struct cpu_dbs_info_s *this_dbs_info)
 
 	for_each_cpu(j, policy->cpus) {
 		struct cpu_dbs_info_s *j_dbs_info;
-		cputime64_t cur_wall_time, cur_idle_time;
-		cputime64_t prev_wall_time, prev_idle_time;
-		unsigned int idle_time, wall_time;
+		cputime64_t cur_wall_time, cur_idle_time, cur_iowait_time;
+		cputime64_t prev_wall_time, prev_idle_time, prev_iowait_time;
+		unsigned int idle_time, wall_time, iowait_time;
 		unsigned int load, load_freq;
 		int freq_avg;
 
 		j_dbs_info = &per_cpu(od_cpu_dbs_info, j);
 		prev_wall_time = j_dbs_info->prev_cpu_wall;
 		prev_idle_time = j_dbs_info->prev_cpu_idle;
+		prev_iowait_time = j_dbs_info->prev_cpu_iowait;
 
 		cur_idle_time = get_cpu_idle_time(j, &cur_wall_time);
+		cur_iowait_time = get_cpu_iowait_time(j, &cur_wall_time);
 
 		wall_time = (unsigned int) cputime64_sub(cur_wall_time,
 							 prev_wall_time);
@@ -1256,6 +1288,10 @@ static void dbs_check_cpu(struct cpu_dbs_info_s *this_dbs_info)
 		idle_time = (unsigned int) cputime64_sub(cur_idle_time,
 							 prev_idle_time);
 		j_dbs_info->prev_cpu_idle = cur_idle_time;
+
+		iowait_time = (unsigned int) cputime64_sub(cur_iowait_time,
+							   prev_iowait_time);
+		j_dbs_info->prev_cpu_iowait = cur_iowait_time;
 
 		if (dbs_tuners_ins.ignore_nice) {
 			cputime64_t cur_nice;
@@ -1273,6 +1309,9 @@ static void dbs_check_cpu(struct cpu_dbs_info_s *this_dbs_info)
 			j_dbs_info->prev_cpu_nice = kstat_cpu(j).cpustat.nice;
 			idle_time += jiffies_to_usecs(cur_nice_jiffies);
 		}
+
+		if (dbs_tuners_ins.io_is_busy && idle_time >= iowait_time)
+			idle_time -= iowait_time;
 
 		if (unlikely(!wall_time || wall_time < idle_time))
 			continue;
@@ -1322,29 +1361,6 @@ static void dbs_check_cpu(struct cpu_dbs_info_s *this_dbs_info)
 	/* if we cannot reduce the frequency anymore, break out early */
 	if (policy->cur == policy->min)
 		return;
-#endif
-
-#ifdef CONFIG_CPU_FREQ_GOV_ONDEMAND_FLEXRATE
-  /* Don't scale down when inside of a flexrate sub-sample */
-  if(hp_s_delay > 0 && hp_s_delay != hp_s_delayc)
-    return;
-  else {
-    /* 
-     * Recalculate max_load_freq based on the averaged histoic of 
-     * the previous normalized samples instead of the current sample.
-     */
-    max_load_freq = policy->min;
-
-    for_each_cpu(j, policy->cpus) {
-      unsigned int load_freq;
-
-      load_freq = hotplug_history->usage[num_hist].load[j] * 
-            hotplug_history->usage[num_hist].freq;
-
-      if (load_freq > max_load_freq)
-        max_load_freq = load_freq;
-    }
-  }
 #endif
 
 	/*
@@ -1481,8 +1497,8 @@ static void cpufreq_lonas_early_suspend(struct early_suspend *h)
 #endif
 	lonas_prev_freq_step = dbs_tuners_ins.freq_step;
 	lonas_prev_sampling_rate = dbs_tuners_ins.sampling_rate;
-	dbs_tuners_ins.freq_step = 10;
-	dbs_tuners_ins.sampling_rate = 200000;
+	dbs_tuners_ins.freq_step = 20;
+	dbs_tuners_ins.sampling_rate *= 4;
 #if EARLYSUSPEND_HOTPLUGLOCK
 	atomic_set(&g_hotplug_lock,
 	    (dbs_tuners_ins.min_cpu_lock) ? dbs_tuners_ins.min_cpu_lock : 1);
@@ -1492,19 +1508,12 @@ static void cpufreq_lonas_early_suspend(struct early_suspend *h)
 }
 static void cpufreq_lonas_late_resume(struct early_suspend *h)
 {
-	struct cpu_dbs_info_s *dbs_info;
-
 #if EARLYSUSPEND_HOTPLUGLOCK
 	atomic_set(&g_hotplug_lock, dbs_tuners_ins.early_suspend);
 #endif
 	dbs_tuners_ins.early_suspend = -1;
 	dbs_tuners_ins.freq_step = lonas_prev_freq_step;
 	dbs_tuners_ins.sampling_rate = lonas_prev_sampling_rate;
-
-	/* Push CPU freq to current max on wakeup */
-	dbs_info = &per_cpu(od_cpu_dbs_info, 0); /* from CPU0 */
-	dbs_freq_increase(dbs_info->cur_policy, dbs_tuners_ins.cpu_max_freq_current);
-
 #if EARLYSUSPEND_HOTPLUGLOCK
 	apply_hotplug_lock();
 	start_rq_work();
@@ -1530,6 +1539,7 @@ static int cpufreq_governor_dbs(struct cpufreq_policy *policy,
 		dbs_tuners_ins.max_freq = policy->max;
 		dbs_tuners_ins.min_freq = policy->min;
 		hotplug_lonas_history->num_hist = 0;
+		start_rq_work();
 
 		mutex_lock(&dbs_mutex);
 
@@ -1562,6 +1572,7 @@ static int cpufreq_governor_dbs(struct cpufreq_policy *policy,
 
 			min_sampling_rate = MIN_SAMPLING_RATE;
 			dbs_tuners_ins.sampling_rate = DEF_SAMPLING_RATE;
+			dbs_tuners_ins.io_is_busy = DEF_IO_IS_BUSY;
 		}
 		mutex_unlock(&dbs_mutex);
 
@@ -1661,6 +1672,7 @@ err_reg:
 err_queue:
 	kfree(hotplug_lonas_history);
 err_hist:
+	kfree(rq_data);
 	return ret;
 }
 
@@ -1669,6 +1681,7 @@ static void __exit cpufreq_gov_dbs_exit(void)
 	cpufreq_unregister_governor(&cpufreq_gov_lonas);
 	destroy_workqueue(dvfs_lonas_workqueue);
 	kfree(hotplug_lonas_history);
+	kfree(rq_data);
 }
 
 MODULE_AUTHOR("ByungChang Cha <bc.cha@samsung.com>");
