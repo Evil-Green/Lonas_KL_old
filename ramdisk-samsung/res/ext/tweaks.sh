@@ -4,10 +4,6 @@
 #
 
 
-# drop caches to free some memory
-sync
-echo "3" > /proc/sys/vm/drop_caches
-
 # Miscellaneous tweaks
 echo "4096" > /proc/sys/vm/min_free_kbytes
 echo "1000" > /proc/sys/vm/dirty_writeback_centisecs
@@ -25,7 +21,7 @@ echo "8" > /proc/sys/vm/page-cluster
 echo "10" > /proc/sys/fs/lease-break-time
 echo "64000" > /proc/sys/kernel/msgmni
 echo "64000" > /proc/sys/kernel/msgmax
-echo "500,512000,64,2048" > /proc/sys/kernel/sem
+echo "500 512000 64 2048" > /proc/sys/kernel/sem
  
 # Tweaks internos
 echo "-1" > /sys/devices/system/gpu/time_in_state
@@ -51,8 +47,8 @@ echo "404480" > /proc/sys/net/core/wmem_max;
 echo "404480" > /proc/sys/net/core/rmem_max;
 echo "256960" > /proc/sys/net/core/rmem_default;
 echo "256960" > /proc/sys/net/core/wmem_default;
-echo "4096,16384,404480" > /proc/sys/net/ipv4/tcp_wmem;
-echo "4096,87380,404480" > /proc/sys/net/ipv4/tcp_rmem;
+echo "4096 16384 404480" > /proc/sys/net/ipv4/tcp_wmem;
+echo "4096 87380 404480" > /proc/sys/net/ipv4/tcp_rmem;
 
 LOOP=`ls -d /sys/block/loop*`
 RAM=`ls -d /sys/block/ram*`
@@ -80,6 +76,8 @@ echo "0" > /sys/module/binder/parameters/debug_mask
 echo "0" > /sys/module/lowmemorykiller/parameters/debug_level
 echo "0" > /sys/module/mali/parameters/mali_debug_level
 echo "0" > /sys/module/ump/parameters/ump_debug_level
+echo "0" > /sys/module/kernel/parameters/initcall_debug
+echo "0" > /sys/module/xt_qtaguid/parameters/debug_mask
 
 # Zero dumpstate files
 /sbin/busybox cat /dev/null > /data/log/dumpstate_app_error.txt.gz.tmp

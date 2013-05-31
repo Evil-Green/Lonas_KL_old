@@ -63,12 +63,12 @@ echo '
     </settingsPane>
   </settingsTab>
 
-  <settingsTab name="Escalar CPU">
+  <settingsTab name="Governor">
 
-    <settingsPane description="lonas es el gobernador por defecto para el funcionamiento diario. Desde aquí podrá modificar los diferentes valores que este contiene, ajústelo a su gusto o bien elegir otro mas acorde a su uso diario." 
+    <settingsPane description="Zzmoove es el gobernador por defecto para el funcionamiento diario. Desde aquí podrá seleccionar otro si no está conforme con el actual." 
                   name="Elegir gobernador Activo">' >> $XML
 echo "
-      <spinner description=\"Set active governor. Por defecto: `cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor`\" 
+      <spinner description=\"Elegir gobernador Activo. Por defecto: `cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor`\" 
                name=\"Gobernador actual\" 
                action=\"generic /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor\">" >> $XML
 
@@ -80,39 +80,150 @@ done
 echo '
       </spinner>
     </settingsPane>
-    <settingsPane description="Ajustes para regular los voltajes de la frecuencia dinámica de la CPU." 
-                  name="DVFS tuneables">' >> $XML
+
+ <settingsTab name="Zzmoove">
+    <settingsPane description="ZZmove es el Governor por defecto, desde aquí podrá seleccionar diferentes perfiles dependiendo de el uso que le quiera dar. Podrá elegir entre Batería, Equilibrado y Rendimiento. Pero estos perfiles solo son funcionales si el governor por defecto es Zzmove"  
+                  name="Información">
+    </settingsPane>' >> $XML
 
 echo "
-      <seekBar description=\"Frecuencia de muestreo en microsegundos, el tiempo de muestreo en el cual el gobernador activa la carga de la CPU. Por defecto: `cat /sys/devices/system/cpu/cpufreq/lonas/sampling_rate` µS.\" 
+    <settingsPane description=\"Zzmoove perfiles predefinidos\" name=\"Zzmoove perfiles predefinidos\">
+      <spinner description=\"Zzmoove perfiles predefinidos\" name=\"Zzmoove perfiles predefinidos\" action=\"zzpredefs zzpredef\">
+             <spinnerItem name=\"Default\" value=\"0\"/> 
+             <spinnerItem name=\"Default w/FS\" value=\"1\"/> 
+             <spinnerItem name=\"Batería\" value=\"2\"/> 
+             <spinnerItem name=\"Batería w/FS\" value=\"3\"/> 
+             <spinnerItem name=\"Equilibrado\" value=\"4\"/> 
+             <spinnerItem name=\"Equilibrado w/FS\" value=\"5\"/> 
+             <spinnerItem name=\"Rendimiento\" value=\"6\"/>
+             <spinnerItem name=\"Rendimiento w/FS\" value=\"7\"/>
+      </spinner>
+    </settingsPane>
+    <settingsPane description=\"regular el escalado del voltaje de la frecuencia dinámica de la CPU.\" 
+                  name=\"Zzmoove tuneables\">
+
+      <seekBar description=\"Frecuencia de muestreo en microsegundos, el tiempo de muestreo en el cual el gobernador activa la carga de la CPU. Por defecto: `cat /sys/devices/system/cpu/cpufreq/zzmoove/sampling_rate` µS.\" 
                name=\"Sampling rate\" 
-               action=\"generic /sys/devices/system/cpu/cpufreq/lonas/sampling_rate\"
-               unit=\"µS\" min=\"10000\" reversed=\"false\" step=\"1000\" max=\"100000\"/>
+               action=\"generic /sys/devices/system/cpu/cpufreq/zzmoove/sampling_rate\"
+               unit=\"µS\" min=\"10000\" reversed=\"false\" step=\"1000\" max=\"120000\"/>
 
       <seekBar description=\"Este valor actúa como multiplicador inverso para reducir la frecuencia de muestreo de utilización de la CPU (sampling_rate) cuando el procesador está realmente ocupado y está a la frecuencia máxima. Por ejemplo sampling_rate=10.000 con sampling_down_factor=2: el scheduler tomará muestras de utilización de la CPU cada 20.000 microsegundos. De esta forma se aumenta el tiempo que la CPU está a frecuencias altas cuando está realmente ocupada. Esto mejora el rendimiento mediante la reducción de los gastos generales de la evaluación de la carga y ayudando a la CPU permanecer en su frecuencia más alta cuando está ocupada, en vez de producir un efecto ping-pong en la velocidad. Este parámetro no tiene ningún efecto sobre el comportamiento a bajas frecuencias y bajas cargas de CPU. 
-Los valores que puede tomar este parámetro son enteros positivos. El valor 1 hace que no haya diferencias de muestreo a frecuencia maxima. Por defecto: `cat /sys/devices/system/cpu/cpufreq/lonas/sampling_down_factor` samples.\" 
+Los valores que puede tomar este parámetro son enteros positivos. El valor 1 hace que no haya diferencias de muestreo a frecuencia maxima. Por defecto:  `cat /sys/devices/system/cpu/cpufreq/zzmoove/sampling_down_factor` samples.\"  
                name=\"Sampling down factor\" 
-               action=\"generic /sys/devices/system/cpu/cpufreq/lonas/sampling_down_factor\"
-               unit=\"samples\" min=\"1\" reversed=\"false\" step=\"1\" max=\"10\"/>
+               action=\"generic /sys/devices/system/cpu/cpufreq/zzmoove/sampling_down_factor\"
+               unit=\"\" min=\"1\" reversed=\"false\" step=\"1\" max=\"10\"/>
 
-      <seekBar description=\"cuando la carga de la CPU llega a este punto, la frecuencia de la CPU escalará hacia arriba. Está medido en porcentaje de 1 a 100. Mayor valor significa menos capacidad de respuesta y valores más bajos corresponden a mejor respuesta repercutiendo en el gasto de la batería. Por defecto: `cat /sys/devices/system/cpu/cpufreq/lonas/up_threshold`%.\" 
+      <seekBar description=\"cuando la carga de la CPU llega a este punto, la frecuencia de la CPU escalará hacia arriba. Está medido en porcentaje de 1 a 100. Mayor valor significa menos capacidad de respuesta y valores más bajos corresponden a mejor respuesta repercutiendo en el gasto de la batería. Por defecto: `cat /sys/devices/system/cpu/cpufreq/zzmoove/up_threshold`%.\" 
                name=\"Up threshold\" 
-               action=\"generic /sys/devices/system/cpu/cpufreq/lonas/up_threshold\"
+               action=\"generic /sys/devices/system/cpu/cpufreq/zzmoove/up_threshold\"
                unit=\"%\" min=\"11\" reversed=\"false\" step=\"1\" max=\"99\"/>
 
-      <seekBar description=\"Es un factor utilizado para calcular de forma indirecta el escalado hacia abajo del gobernador OnDemand. Se introduce básicamente para evitar que en algunos casos se produzca un efecto ping-pong de escalados abajo-arriba con el consiguiente aumento de consumo. Este parámetro actúa como un factor que previene escalados demasiado agresivos hacia frecuencias bajas.
-Los valores que puede tomar este parámetro son enteros positivos. Los valores más altos retrasarán el escalado hacia abajo. Normalmente no son necesarios estos valores altos ya que por la estructura del algoritmo en que interviene este parámetro ya se producen varios redondeos al alza que hacen que la CPU normalmente esté "sobrada" utilizando este gobernador. Por defecto: `cat /sys/devices/system/cpu/cpufreq/lonas/down_differential`%.\" 
-               name=\"Down differential\" 
-               action=\"generic /sys/devices/system/cpu/cpufreq/lonas/down_differential\"
-               unit=\"%\" min=\"0\" reversed=\"false\" step=\"1\" max=\"50\"/>
+      <seekBar description=\"Esto es igual que el up_threshold pero al contrario. Por defecto: `cat /sys/devices/system/cpu/cpufreq/zzmoove/down_threshold`%.\" 
+               name=\"Down threshold\" 
+               action=\"generic /sys/devices/system/cpu/cpufreq/zzmoove/down_threshold\"
+               unit=\"%\" min=\"11\" reversed=\"false\" step=\"1\" max=\"100\"/>
 
-      <seekBar description=\"Define cuanto (en % de la máxima velocidad de la CPU) incrementará o disminuirá el gobernador la velocidad de la CPU cada vez que la carga de la CPU llega a un umbral. Por defecto: `cat /sys/devices/system/cpu/cpufreq/lonas/freq_step`%.\"
+      <seekBar description=\"si este valor es 1 el sistema no tendrá en cuenta la carga debida a los "procesos de baja prioridad" para cambiar la velocidad del procesador: será útil activar esta opción si no importa el tiempo que se tarden en completar estos procesos. 
+Nota: los procesos de baja prioridad serán aquellos que así establezca el planificador (I/O Scheduler)
+Este parámetro toma valores 0 ó 1. Por defecto: `cat /sys/devices/system/cpu/cpufreq/zzmoove/ignore_nice_load`.\" 
+               name=\"Ignore nice load\" 
+               action=\"generic /sys/devices/system/cpu/cpufreq/zzmoove/ignore_nice_load\"
+               unit=\"\" min=\"0\" reversed=\"false\" step=\"1\" max=\"1\"/>
+
+      <seekBar description=\"Define cuanto (en % de la máxima velocidad de la CPU) incrementará o disminuirá el gobernador la velocidad de la CPU cada vez que la carga de la CPU llega a un umbral. Por defecto: `cat /sys/devices/system/cpu/cpufreq/zzmoove/freq_step`%.\"
                name=\"Frequency step\" 
-               action=\"generic /sys/devices/system/cpu/cpufreq/lonas/freq_step\"
-               unit=\"%\" min=\"1\" reversed=\"false\" step=\"1\" max=\"100\"/>" >> $XML
+               action=\"generic /sys/devices/system/cpu/cpufreq/zzmoove/freq_step\"
+               unit=\"%\" min=\"0\" reversed=\"false\" step=\"1\" max=\"100\"/>
+
+      <seekBar description=\"Por defecto: `cat /sys/devices/system/cpu/cpufreq/zzmoove/smooth_up`%.\"
+               name=\"Smooth Up\" 
+               action=\"generic /sys/devices/system/cpu/cpufreq/zzmoove/smooth_up\"
+               unit=\"%\" min=\"1\" reversed=\"false\" step=\"1\" max=\"100\"/>
+
+      <seekBar description=\"Limite de la frecuencia en pantalla. 0 desactivará límites. Valores posibles: 200000-1600000. Por defecto: `cat /sys/devices/system/cpu/cpufreq/zzmoove/freq_limit`hz.\"
+               name=\"Frequency limits\" 
+               action=\"generic /sys/devices/system/cpu/cpufreq/zzmoove/freq_limit\"
+               unit=\"hz\" min=\"0\" reversed=\"false\" step=\"100000\" max=\"1600000\"/>
+
+      <seekBar description=\"Escalamiento rápido en pantalla. Valores posibles: 0 desactivado o 1 activado, default: 0). Por defecto: 0.\" 
+               name=\"Fast scaling\" 
+               action=\"generic /sys/devices/system/cpu/cpufreq/zzmoove/fast_scaling\"
+               unit=\"\" min=\"0\" reversed=\"false\" step=\"1\" max=\"1\"/>
+
+      <seekBar description=\"Por defecto: `cat /sys/devices/system/cpu/cpufreq/zzmoove/up_threshold_hotplug1`%.\"
+               name=\"Hotplug up threshold CPU1\" 
+               action=\"generic /sys/devices/system/cpu/cpufreq/zzmoove/up_threshold_hotplug1\"
+               unit=\"%\" min=\"0\" reversed=\"false\" step=\"1\" max=\"100\"/>
+
+      <seekBar description=\"Por defecto: `cat /sys/devices/system/cpu/cpufreq/zzmoove/up_threshold_hotplug2`%.\"
+               name=\"Hotplug up threshold CPU2\" 
+               action=\"generic /sys/devices/system/cpu/cpufreq/zzmoove/up_threshold_hotplug2\"
+               unit=\"%\" min=\"0\" reversed=\"false\" step=\"1\" max=\"100\"/>
+
+      <seekBar description=\"Por defecto: `cat /sys/devices/system/cpu/cpufreq/zzmoove/up_threshold_hotplug3`%.\"
+               name=\"Hotplug up threshold CPU3\" 
+               action=\"generic /sys/devices/system/cpu/cpufreq/zzmoove/up_threshold_hotplug3\"
+               unit=\"%\" min=\"0\" reversed=\"false\" step=\"1\" max=\"100\"/>
+
+      <seekBar description=\"Por defecto: `cat /sys/devices/system/cpu/cpufreq/zzmoove/down_threshold_hotplug1`%.\"
+               name=\"Hotplug down threshold CPU1\" 
+               action=\"generic /sys/devices/system/cpu/cpufreq/zzmoove/down_threshold_hotplug1\"
+               unit=\"%\" min=\"11\" reversed=\"false\" step=\"1\" max=\"100\"/>
+
+      <seekBar description=\"Por defecto: `cat /sys/devices/system/cpu/cpufreq/zzmoove/down_threshold_hotplug2`%.\"
+               name=\"Hotplug down threshold CPU2\" 
+               action=\"generic /sys/devices/system/cpu/cpufreq/zzmoove/down_threshold_hotplug2\"
+               unit=\"%\" min=\"11\" reversed=\"false\" step=\"1\" max=\"100\"/>
+
+      <seekBar description=\"Por defecto: `cat /sys/devices/system/cpu/cpufreq/zzmoove/down_threshold_hotplug3`%.\"
+               name=\"Hotplug down threshold CPU3\" 
+               action=\"generic /sys/devices/system/cpu/cpufreq/zzmoove/down_threshold_hotplug3\"
+               unit=\"%\" min=\"11\" reversed=\"false\" step=\"1\" max=\"100\"/>
+
+      <seekBar description=\"Por defecto: `cat /sys/devices/system/cpu/cpufreq/zzmoove/sampling_rate_sleep_multiplier`.\" 
+               name=\"Sampling rate sleep multiplier\" 
+               action=\"generic /sys/devices/system/cpu/cpufreq/zzmoove/sampling_rate_sleep_multiplier\"
+               unit=\"\" min=\"1\" reversed=\"false\" step=\"1\" max=\"2\"/>
+
+      <seekBar description=\"Por defecto: `cat /sys/devices/system/cpu/cpufreq/zzmoove/down_threshold_sleep`%.\"
+               name=\"Down threshold sleep\" 
+               action=\"generic /sys/devices/system/cpu/cpufreq/zzmoove/down_threshold_sleep\"
+               unit=\"%\" min=\"11\" reversed=\"false\" step=\"1\" max=\"100\"/>
+
+      <seekBar description=\"Por defecto: `cat /sys/devices/system/cpu/cpufreq/zzmoove/up_threshold_sleep`%.\"
+               name=\"Up threshold sleep\" 
+               action=\"generic /sys/devices/system/cpu/cpufreq/zzmoove/up_threshold_sleep\"
+               unit=\"%\" min=\"0\" reversed=\"false\" step=\"1\" max=\"100\"/>
+
+      <seekBar description=\"Por defecto: `cat /sys/devices/system/cpu/cpufreq/zzmoove/smooth_up_sleep`%.\"
+               name=\"Smooth up sleep\" 
+               action=\"generic /sys/devices/system/cpu/cpufreq/zzmoove/smooth_up_sleep\"
+               unit=\"%\" min=\"1\" reversed=\"false\" step=\"1\" max=\"100\"/>
+
+      <seekBar description=\"Por defecto: `cat /sys/devices/system/cpu/cpufreq/zzmoove/hotplug_sleep`.\"  
+               name=\"Hotplug sleep\" 
+               action=\"generic /sys/devices/system/cpu/cpufreq/zzmoove/hotplug_sleep\"
+               unit=\"\" min=\"0\" reversed=\"false\" step=\"1\" max=\"3\"/>
+
+      <seekBar description=\"Por defecto: `cat /sys/devices/system/cpu/cpufreq/zzmoove/freq_limit_sleep`hz.\" 
+               name=\"Frequency limit sleep\" 
+               action=\"generic /sys/devices/system/cpu/cpufreq/zzmoove/freq_limit_sleep\"
+               unit=\"hz\" min=\"0\" reversed=\"false\" step=\"10000\" max=\"1600000\"/>
+
+      <seekBar description=\"Valores posibles: van de 0 a 100, si no se establece por defecto es 5, el valor 0 se detendrá el escalado de frecuencia y mantendrá la frec real. Valor 100 saltará directamente hacia arriba o hacia abajo para límites como gobernador ondemand. Por defecto: `cat /sys/devices/system/cpu/cpufreq/zzmoove/freq_step_sleep`.\" 
+               name=\"Frequency step sleep\" 
+               action=\"generic /sys/devices/system/cpu/cpufreq/zzmoove/freq_step_sleep\"
+               unit=\"\" min=\"0\" reversed=\"false\" step=\"1\" max=\"100\"/>
+
+      <seekBar description=\"Por defecto: `cat /sys/devices/system/cpu/cpufreq/zzmoove/fast_scaling_sleep`.\" 
+               name=\"Fast scaling sleep\" 
+               action=\"generic /sys/devices/system/cpu/cpufreq/zzmoove/fast_scaling_sleep\"
+               unit=\"\" min=\"0\" reversed=\"false\" step=\"1\" max=\"1\"/>
+
+    </settingsPane>
+" >> $XML
 
 echo '
-    </settingsPane>
   </settingsTab>
 
   <settingsTab name="Memoria/Interna">

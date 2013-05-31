@@ -1,4 +1,4 @@
-scaling_governor=lonas
+scaling_governor=zzmoove
 internal_iosched=row
 sd_iosched=row
 internal_read_ahead_kb=512
