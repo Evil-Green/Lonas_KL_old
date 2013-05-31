@@ -132,10 +132,6 @@ config CPU_FREQ_DEFAULT_GOV_PEGASUSQ
 	bool "pegasusq"
 	select CPU_FREQ_GOV_PEGASUSQ
 
-config CPU_FREQ_DEFAULT_GOV_LONAS
-	bool "lonas"
-	select CPU_FREQ_GOV_LONAS
-
 endchoice
 
 config CPU_FREQ_GOV_PERFORMANCE
@@ -288,11 +284,6 @@ config CPU_FREQ_GOV_ADAPTIVE
 
 config CPU_FREQ_GOV_PEGASUSQ
 	tristate "'pegasusq' cpufreq policy governor"
-
-config CPU_FREQ_GOV_LONAS
-	tristate "'lonas' cpufreq policy governor"
-	help
-	  based on PegasusQ - This driver is work in progress
 
 config CPU_FREQ_GOV_LULZACTIVEQ
         tristate "'lulzactiveq' cpufreq governor"
