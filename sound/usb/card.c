@@ -626,9 +626,7 @@ int snd_usb_autoresume(struct snd_usb_audio *chip)
 void snd_usb_autosuspend(struct snd_usb_audio *chip)
 {
 	down_read(&chip->shutdown_rwsem);
-	if (chip->probing)
-		err = 0;
-	else if (!chip->shutdown)
+	if (!chip->shutdown && !chip->probing)
 		usb_autopm_put_interface(chip->pm_intf);
 	up_read(&chip->shutdown_rwsem);
 }
