@@ -9,9 +9,9 @@ echo "4096" > /proc/sys/vm/min_free_kbytes
 echo "1000" > /proc/sys/vm/dirty_writeback_centisecs
 echo "500" > /proc/sys/vm/dirty_expire_centisecs
 echo "0" > /proc/sys/vm/oom_kill_allocating_task
-echo "0" > /proc/sys/vm/swappiness
 echo "0" > /proc/sys/vm/block_dump
 echo "50" > /proc/sys/vm/vfs_cache_pressure
+echo "0" > /proc/sys/vm/swappiness
 echo "90" > /proc/sys/vm/dirty_ratio
 echo "70" > /proc/sys/vm/dirty_background_ratio
 
@@ -93,8 +93,3 @@ echo "0" > /sys/module/xt_qtaguid/parameters/debug_mask
 /sbin/busybox chmod 400 /data/log/dumpstate_app_anr.txt.gz.tmp
 /sbin/busybox chmod 400 /data/log/dumpstate_app_error.txt.gz
 
-# battery tweaks (sleepers)
-/sbin/busybox mount -t debugfs none /sys/kernel/debug
-echo NO_NEW_FAIR_SLEEPERS > /sys/kernel/debug/sched_features
-echo NO_NORMALIZED_SLEEPERS > /sys/kernel/debug/sched_features
-/sbin/busybox umount /sys/kernel/debug

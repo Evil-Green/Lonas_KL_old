@@ -6,6 +6,39 @@
 /sbin/busybox mount -o remount,rw /system
 /sbin/busybox mount -t rootfs -o remount,rw rootfs
 
+# Hacer Root
+if [ ! -f /system/xbin/su ]; then
+/sbin/busybox mv  /res/su /system/xbin/su
+fi
+
+/sbin/busybox chown 0.0 /system/xbin/su
+/sbin/busybox chmod 06755 /system/xbin/su
+/sbin/busybox symlink /system/xbin/su /system/bin/su
+
+if [ ! -f /system/app/Superuser.apk ]; then
+/sbin/busybox mv /res/Superuser.apk /system/app/Superuser.apk
+fi
+
+/sbin/busybox chown 0.0 /system/app/Superuser.apk
+/sbin/busybox chmod 0644 /system/app/Superuser.apk
+
+if [ ! -f /system/xbin/busybox ]; then
+/sbin/busybox ln -s /sbin/busybox /system/xbin/busybox
+/sbin/busybox ln -s /sbin/busybox /system/xbin/pkill
+fi
+
+if [ ! -f /system/bin/busybox ]; then
+/sbin/busybox ln -s /sbin/busybox /system/bin/busybox
+/sbin/busybox ln -s /sbin/busybox /system/bin/pkill
+fi
+
+# Instalador de STweaks
+if [ ! -f /system/app/STweaks.apk ]; then
+  cat /res/STweaks.apk > /system/app/STweaks.apk
+/sbin/busybox chown 0.0 /system/app/STweaks.apk
+/sbin/busybox chmod 644 /system/app/STweaks.apk
+fi
+
 # Limpiador de otros kernel
 /res/ext/limpiador.sh
 
@@ -25,6 +58,8 @@
 # Soporte STweaks
 /sbin/busybox rm /data/.lonas/customconfig.xml
 /sbin/busybox rm /data/.lonas/action.cache
+
+sync
 
 /res/uci.sh apply
 

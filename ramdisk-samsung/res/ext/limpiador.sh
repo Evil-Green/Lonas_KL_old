@@ -3,12 +3,9 @@
 # Limpiador de Kernel - by Javilonas
 #
 
-/sbin/busybox mount -o remount,rw /system
-
 # drop caches to free some memory
 sync
 echo "3" > /proc/sys/vm/drop_caches
-
 
 #remove cache, tmp, and unused files
 /sbin/busybox rm -f /cache/*.apk
@@ -32,4 +29,3 @@ if [ -e /data/.temasek ]; then
 	/sbin/busybox rm -r -f /data/.temasek
 fi;
 
-/sbin/busybox mount -o remount,rw,noatime /system

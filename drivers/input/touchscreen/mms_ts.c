@@ -46,10 +46,6 @@
 #include <mach/cpufreq.h>
 #include <mach/dev.h>
 
-#ifdef CONFIG_TOUCH_WAKE
-#include <linux/touch_wake.h>
-#endif
-
 #ifdef CONFIG_TOUCHSCREEN_GESTURES
 #include <linux/spinlock.h>
 #include <linux/miscdevice.h>
@@ -92,6 +88,9 @@ DECLARE_WAIT_QUEUE_HEAD(gestures_wq);
 static spinlock_t gestures_lock;
 #endif
 
+#ifdef CONFIG_TOUCH_WAKE
+#include <linux/touch_wake.h>
+#endif
 
 #include <linux/platform_data/mms_ts.h>
 
@@ -3090,13 +3089,10 @@ static void reset_gestures_detection_locked(bool including_detected)
 {
 	int gesture_no, finger_no;
 
-	has_gestures = false;
-	for (gesture_no = 0; gesture_no <= max_configured_gesture; gesture_no++) {
-		if (gestures_detected[gesture_no] && !including_detected) {
-			has_gestures = true;
+	for (gesture_no = 0; gesture_no < MAX_GESTURES; gesture_no++) {
+		if (gestures_detected[gesture_no] && !including_detected)
 			// Gesture already reported, skip
 			continue;
-		}
 
 		gestures_detected[gesture_no] = false;
 
@@ -3304,7 +3300,7 @@ static ssize_t wait_for_gesture_show(struct device *dev,
 			has_gestures = has_more_gestures;
 
 			// Reset detection of this gesture
-			for (finger_no = 0; finger_no <= max_gesture_finger[detected_gesture]; finger_no++) {
+			for (finger_no = 0; finger_no < MAX_GESTURE_FINGERS; finger_no++) {
 				gesture_fingers[detected_gesture][finger_no].finger_order = -1;
 				gesture_fingers[detected_gesture][finger_no].current_step = -1;
 			}
@@ -3431,53 +3427,57 @@ static int mms_ts_suspend(struct device *dev)
   struct i2c_client *client = to_i2c_client(dev);
   struct mms_ts_info *info = i2c_get_clientdata(client);
 
-  if (!info->enabled)
-    return 0;
+#ifdef CONFIG_TOUCHSCREEN_GESTURES
+	reset_gestures_detection(false);
+#endif
 
-  dev_notice(&info->client->dev, "%s: users=%d\n", __func__,
-       info->input_dev->users);
+	if (!info->enabled)
+		return 0;
 
-  disable_irq(info->irq);
-  info->enabled = false;
-  touch_is_pressed = 0;
-  release_all_fingers(info);
-  info->pdata->power(false);
-  /* This delay needs to prevent unstable POR by
-  rapid frequently pressing of PWR key. */
-  msleep(50);
-  return 0;
+	dev_notice(&info->client->dev, "%s: users=%d\n", __func__,
+		   info->input_dev->users);
+
+	disable_irq(info->irq);
+	info->enabled = false;
+	touch_is_pressed = 0;
+	release_all_fingers(info);
+	info->pdata->power(false);
+	/* This delay needs to prevent unstable POR by
+	rapid frequently pressing of PWR key. */
+	msleep(50);
+	return 0;
 }
 
 static int mms_ts_resume(struct device *dev)
 {
-  struct i2c_client *client = to_i2c_client(dev);
-  struct mms_ts_info *info = i2c_get_clientdata(client);
-  int ret = 0;
+	struct i2c_client *client = to_i2c_client(dev);
+	struct mms_ts_info *info = i2c_get_clientdata(client);
+	int ret = 0;
 
-  if (info->enabled)
-    return 0;
+	if (info->enabled)
+		return 0;
 
-  dev_notice(&info->client->dev, "%s: users=%d\n", __func__,
-       info->input_dev->users);
-  info->pdata->power(true);
-  msleep(120);
+	dev_notice(&info->client->dev, "%s: users=%d\n", __func__,
+		   info->input_dev->users);
+	info->pdata->power(true);
+	msleep(120);
 
-  if (info->ta_status) {
-    dev_notice(&client->dev, "TA connect!!!\n");
-    i2c_smbus_write_byte_data(info->client, 0x33, 0x1);
-  } else {
-    dev_notice(&client->dev, "TA disconnect!!!\n");
-    i2c_smbus_write_byte_data(info->client, 0x33, 0x2);
-  }
+	if (info->ta_status) {
+		dev_notice(&client->dev, "TA connect!!!\n");
+		i2c_smbus_write_byte_data(info->client, 0x33, 0x1);
+	} else {
+		dev_notice(&client->dev, "TA disconnect!!!\n");
+		i2c_smbus_write_byte_data(info->client, 0x33, 0x2);
+	}
 
-  /* Because irq_type by EXT_INTxCON register is changed to low_level
-   *  after wakeup, irq_type set to falling edge interrupt again.
-   */
+	/* Because irq_type by EXT_INTxCON register is changed to low_level
+	 *  after wakeup, irq_type set to falling edge interrupt again.
+	 */
 
-  enable_irq(info->irq);
-  info->enabled = true;
-  mms_set_noise_mode(info);
-  return 0;
+	enable_irq(info->irq);
+	info->enabled = true;
+	mms_set_noise_mode(info);
+	return 0;
 }
 #endif
 
@@ -3486,6 +3486,9 @@ static void mms_ts_early_suspend(struct early_suspend *h)
 {
 #ifndef CONFIG_TOUCH_WAKE
   struct mms_ts_info *info;
+#ifdef CONFIG_TOUCHSCREEN_GESTURES
+	reset_gestures_detection(false);
+#endif
   info = container_of(h, struct mms_ts_info, early_suspend);
   mms_ts_suspend(&info->client->dev);
 #endif
@@ -3576,7 +3579,6 @@ static int __devinit mms_ts_probe(struct i2c_client *client,
 	}
 	info->irq = -1;
 	mutex_init(&info->lock);
-
 
 #ifdef CONFIG_TOUCHSCREEN_GESTURES
 	spin_lock_init(&gestures_lock);
@@ -3744,10 +3746,6 @@ static int __devexit mms_ts_remove(struct i2c_client *client)
 
 	return 0;
 }
-
-#ifdef CONFIG_TOUCHSCREEN_GESTURES
-	reset_gestures_detection(false);
-#endif
 
 #if defined(CONFIG_PM) && !defined(CONFIG_HAS_EARLYSUSPEND)
 static const struct dev_pm_ops mms_ts_pm_ops = {

@@ -82,8 +82,8 @@ static struct mali_policy_config{
 	unsigned int upThreshold;
 	unsigned int downDifferential;
 }mali_policy = {
-	.upThreshold = 85,
-	.downDifferential = 20,
+	.upThreshold = 75,
+	.downDifferential = 17,
 };
 
 
