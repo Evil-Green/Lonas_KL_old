@@ -506,10 +506,20 @@ echo '
 
     </settingsPane>
 
-    <settingsPane name="Swappiness" 
-                  description="Un valor bajo significa que el kernel va a tratar de evitar el intercambio tanto como sea posible, por contra en un valor más alto intentará de usar el espacio de intercambio de un modo mas agresivo">   
+    <settingsPane name="ZRAM" 
+                  description=" ">
 
-      <seekBar  description="" 
+      <seekBar  description="Desde aquí podrá aumentar o disminuir el tamaño de Zram" 
+                name="ZRAM" 
+                action="zram"
+                unit="mB" min="0" reversed="false" step="8" max="512"/>      
+
+    </settingsPane>
+
+    <settingsPane name="Swappiness" 
+                  description="Un valor bajo significa que el kernel va a tratar de evitar el intercambio tanto como sea posible, por contra en un valor más alto intentará de usar el espacio de intercambio de un modo mas agresivo, en resumen: al bajar su valor, le indicamos que use mas caché y menos swap y al subirlo le estamos indicamos al sistema, que use menos Swap y mas caché y memoria RAM.">   
+
+      <seekBar  description="Por defecto: 60." 
                 name="Virtual machine swappiness" 
                 action="generic /proc/sys/vm/swappiness"
                 unit="%" min="0" reversed="false" step="1" max="100"/>
@@ -526,6 +536,56 @@ echo '
 
     </settingsPane>
 
+    <settingsPane name="VFS Cache Pressure" 
+                  description="Esto controla la tendencia del nucleo para recuperar la memoria que se utiliza para el almacenamiento en caché de objetos de directorios e inodos (dentries e inodes). Un valor muy bajo puede causar pérdida de memoria y lentitud, por contra un valor muy alto gastará mucha mas batería, lo idea es encontrar algo intermedio.">
+     
+      <seekBar  description="Por defecto: 10." 
+                name="VFS Cache Pressure" 
+                action="generic /proc/sys/vm/vfs_cache_pressure"
+                unit="%" min="0" reversed="false" step="1" max="500"/>
+
+    </settingsPane>
+
+    <settingsPane name="Dirty Ratio" 
+                  description="Con vm.dirty_ratio modificas el porcentaje total de memoria que puede ser consumido por la cache de páginas antes de pasar a escribir en disco duro directamente.">
+     
+      <seekBar  description="Por defecto: 90." 
+                name="Dirty Ratio" 
+                action="generic /proc/sys/vm/dirty_ratio"
+                unit="%" min="0" reversed="false" step="1" max="100"/>
+
+    </settingsPane>
+
+    <settingsPane name="Dirty Background Ratio" 
+                  description="Con vm.dirty_background_ratio modifcas el porcentaje máximo que se puede usar para cache de paginas en RAM antes de pasar a disco duro.">
+     
+      <seekBar  description="Por defecto: 70." 
+                name="Dirty Background Ratio" 
+                action="generic /proc/sys/vm/dirty_background_ratio"
+                unit="%" min="0" reversed="false" step="1" max="100"/>
+
+    </settingsPane>
+
+    <settingsPane name="Dirty Writeback Centisecs" 
+                  description="Esto le indica al kernel cada cuantos segundos debe escribir los datos al disco. El valor por defecto es de 500, que equivale a 5 segundos. Este parámetro puede influir bastante en rendimiento y gasto de batería, así que ojo con el">
+     
+      <seekBar  description="Por defecto: 500." 
+                name="Dirty Writeback Centisecs" 
+                action="generic /proc/sys/vm/dirty_writeback_centisecs"
+                unit="%" min="0" reversed="false" step="1" max="6000"/>
+
+    </settingsPane>
+
+    <settingsPane name="Dirty Expire Centisecs" 
+                  description="dirty_expire_centisecs define cuando los datos en memoria que se encuentran marcados como sucios (dirty) son lo suficientemente antiguos como para ser candidatos a escritura. El valor por defecto es 250. Este parámetro puede influir bastante en rendimiento y gasto de batería, así que ojo con el">
+     
+      <seekBar  description="Por defecto: 250." 
+                name="Dirty Expire Centisecs" 
+                action="generic /proc/sys/vm/dirty_expire_centisecs"
+                unit="%" min="0" reversed="false" step="1" max="6000"/>
+
+    </settingsPane>
+
     <settingsPane name="OOM Allocating task" 
                   description="Este parámetro es algo delicado, activarlo podría aumentar el rendimiento pero también podría consumir bastante mas memoria, Estando desactivado, este explorará a través de toda la lista de tareas y seleccionará una tarea basada en la heurística para matar. Normalmente selecciona una tarea de memoria que esté acaparando toda la memoria o la mayor parte de ella y liberará una gran cantidad de memoria al matarla. En resumen, estando desactivado esto, matará a la tarea que esté acaparando la memoria de manera intensiva. Si tenéis problemas  con aplicaciones que se cierran sin mas, Activarlo de nuevo">
      
@@ -533,16 +593,6 @@ echo '
                 name="Activar OOM Allocating task" 
                 action="generic01 /proc/sys/vm/oom_kill_allocating_task"
                 label="Activar OOM Allocating task"/>
-
-    </settingsPane>
-
-    <settingsPane name="VFS Cache Pressure" 
-                  description="Un valor muy bajo puede causar pérdida de memoria y lentitud, por contra un valor muy alto valor gastará mucha mas batería, lo idea es encontrar algo intermedio.">
-     
-      <seekBar  description="Por defecto: 50." 
-                name="VFS Cache Pressure" 
-                action="generic /proc/sys/vm/vfs_cache_pressure"
-                unit="%" min="0" reversed="false" step="1" max="100"/>
 
     </settingsPane>
 
@@ -559,7 +609,7 @@ echo '
     <settingsPane name="Android Logger" 
                   description="Android Logger es una herramienta útil para los desarrolladores para probar y depurar sus aplicaciones, pero se puede desactivar en el uso normal, esto puede darle un mejor rendimiento, por defecto viene desactivado">
 
-      <checkbox description="Se recomienda desactivar Logger Android si no lo necesita" 
+      <checkbox description="Se recomienda desactivar Logger Android si no lo necesita. NOTA: Después de desactivar hay que reiniciar" 
                 name="Activar Android Logger" 
                 action="generic01 /sys/kernel/logger_mode/logger_mode" 
                 label="Activar Android logger"/>
@@ -568,15 +618,6 @@ echo '
   </settingsTab>
 
   <settingsTab name="Pantalla/LED">
-    <settingsPane name="Front Buffer"
-		  description="Front Buffer">
-
-      <seekBar  description="Añade un pequeño retraso de x milisegundos al apagar o encender la pantalla, esto soluciona el problemas que hace que earlysuspend detuviera el efecto CRT-off, podríamos llamarlo FIX, pero ajustándolo anuestro gusto."
-		name="Front buffer Fix CRT-off"
-                action="generic /sys/power/fb_delay"
-                unit="ms" min="0" reversed="false" step="25" max="500"/>
-
-    </settingsPane>
     <settingsPane name="Touch Boost Switch" 
                   description="Touch Boost Switch">
     
