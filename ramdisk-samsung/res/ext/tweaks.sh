@@ -44,9 +44,8 @@ echo "4096 87380 404480" > /proc/sys/net/ipv4/tcp_rmem;
 LOOP=`ls -d /sys/block/loop*`
 RAM=`ls -d /sys/block/ram*`
 MMC=`ls -d /sys/block/mmc*`
-ZRAM=`ls -d /sys/block/zram*`
 
-for i in $LOOP $RAM $MMC $ZRAM
+for i in $LOOP $RAM $MMC
 do 
 echo "row" > $i/queue/scheduler
 echo "0" > $i/queue/add_random
