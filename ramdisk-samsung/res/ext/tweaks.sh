@@ -5,11 +5,10 @@
 
 
 # Miscellaneous tweaks
-echo "0" > /proc/sys/vm/swappiness
 echo "0" > /proc/sys/vm/block_dump
 echo "0" > /proc/sys/vm/laptop_mode
 echo "0" > /proc/sys/vm/panic_on_oom 
-echo "3" > /proc/sys/vm/page-cluster
+echo "8" > /proc/sys/vm/page-cluster
 echo "10" > /proc/sys/fs/lease-break-time
 echo "64000" > /proc/sys/kernel/msgmni
 echo "64000" > /proc/sys/kernel/msgmax
@@ -45,8 +44,9 @@ echo "4096 87380 404480" > /proc/sys/net/ipv4/tcp_rmem;
 LOOP=`ls -d /sys/block/loop*`
 RAM=`ls -d /sys/block/ram*`
 MMC=`ls -d /sys/block/mmc*`
+ZRAM=`ls -d /sys/block/zram*`
 
-for i in $LOOP $RAM $MMC
+for i in $LOOP $RAM $MMC $ZRAM
 do 
 echo "row" > $i/queue/scheduler
 echo "0" > $i/queue/add_random
