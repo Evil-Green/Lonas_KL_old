@@ -7,7 +7,6 @@ max_freq=440
 min_freq=160
 logger_mode=off
 touchboost_switch=on
-swappiness=60
 min_free_kbytes=4096
 oom_kill_allocating_task=off
 vfs_cache_pressure=10

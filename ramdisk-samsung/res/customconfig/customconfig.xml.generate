@@ -86,13 +86,9 @@ echo "
     <settingsPane description=\"Zzmoove perfiles predefinidos\" name=\"Zzmoove perfiles predefinidos\">
       <spinner description=\"Zzmoove perfiles predefinidos\" name=\"Zzmoove perfiles predefinidos\" action=\"zzpredefs zzpredef\">
              <spinnerItem name=\"Default\" value=\"0\"/> 
-             <spinnerItem name=\"Default w/FS\" value=\"1\"/> 
-             <spinnerItem name=\"Batería\" value=\"2\"/> 
-             <spinnerItem name=\"Batería w/FS\" value=\"3\"/> 
-             <spinnerItem name=\"Equilibrado\" value=\"4\"/> 
-             <spinnerItem name=\"Equilibrado w/FS\" value=\"5\"/> 
-             <spinnerItem name=\"Rendimiento\" value=\"6\"/>
-             <spinnerItem name=\"Rendimiento w/FS\" value=\"7\"/>
+             <spinnerItem name=\"Batería\" value=\"1\"/> 
+             <spinnerItem name=\"Equilibrado\" value=\"2\"/> 
+             <spinnerItem name=\"Rendimiento\" value=\"3\"/>
       </spinner>
     </settingsPane>
     <settingsPane description=\"regular el escalado del voltaje de la frecuencia dinámica de la CPU.\" 
@@ -503,26 +499,6 @@ echo '
                 name="SD card read-ahead" 
                 action="generictagforce sd /sys/block/mmcblk1/queue/read_ahead_kb"
                 unit="kB" min="128" reversed="false" step="128" max="2048"/>
-
-    </settingsPane>
-
-    <settingsPane name="ZRAM" 
-                  description=" ">
-
-      <seekBar  description="Desde aquí podrá aumentar o disminuir el tamaño de Zram" 
-                name="ZRAM" 
-                action="zram"
-                unit="mB" min="0" reversed="false" step="8" max="512"/>      
-
-    </settingsPane>
-
-    <settingsPane name="Swappiness" 
-                  description="Un valor bajo significa que el kernel va a tratar de evitar el intercambio tanto como sea posible, por contra en un valor más alto intentará de usar el espacio de intercambio de un modo mas agresivo, en resumen: al bajar su valor, le indicamos que use mas caché y menos swap y al subirlo le estamos indicamos al sistema, que use menos Swap y mas caché y memoria RAM.">   
-
-      <seekBar  description="Por defecto: 60." 
-                name="Virtual machine swappiness" 
-                action="generic /proc/sys/vm/swappiness"
-                unit="%" min="0" reversed="false" step="1" max="100"/>
 
     </settingsPane>
 

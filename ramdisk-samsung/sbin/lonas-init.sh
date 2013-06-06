@@ -39,9 +39,6 @@ if [ ! -f /system/app/STweaks.apk ]; then
 /sbin/busybox chmod 644 /system/app/STweaks.apk
 fi
 
-mkswap /dev/block/zram0
-swapon /dev/block/zram0
-
 # Limpiador de otros kernel
 /res/ext/limpiador.sh
 
