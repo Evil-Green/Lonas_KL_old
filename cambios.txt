@@ -1,59 +1,17 @@
 
-Kernel Lonas_KL 3.7 versión Stock
+Kernel Lonas_KL 3.8 versión Stock
 
 ------------------------------------------------
-Cambios realizados a día 02/06/2013
+Cambios realizados a día 08/06/2013
 
-El kernel rootea el teléfono automáticamente si no lo está.
-El kernel ya trae Busybox, ahora clona /sbin con /xbin.
-el kernel te instala la APP stweaks si no la tienes instalada ya.
-Optimized ARM RWSEM algorithm.
-RWSEM_XCHGADD_ALGORITHM for ARM (R/W semaphores implemented using ARM Atomic functions).
-Eliminado Soporte NTFS.
-NFS,CIFS,LOCKD,SUNRPC como módulos.
-mms_ts.c: Desactivado debug
-storage_common.c: Add missing codes to support DriveDroid
-f_fs: ffs_func_free: cleanup requests allocated by autoconfig
-i.MX25 GPT clock fix: ensure correct the clock source
-mutex: Make more scalable by doing less atomic operations
-hrtimer: Consider preemption when migrating hrtimer cpu_bases
-hrtimer: Prevent enqueue of hrtimer on dead CPU
-hashtable: introduce a small and naive hashtable
-block,elevator: use new hashtable implementation
-pequeño arreglo para mejoras en el rendimiento
-Eliminado governor lonas
-ZZMOOVE como governor por defecto
-sdhci: deploy delay on host power down for all configs
-bcmdhd: neuter net_os_rxfilter_add_remove
-fs/buffer.c: do not inline exported function
-Actualizado con mejoras el Governor PegasusQ
-mali: Desactivado mali_runtime_resume que establece continuamente el reloj a 266MHz
-kernel: fix exFAT support
-mali: Desactivar multicast en suspensión
-mali: desactivar tensión de bloqueo y reset, incluso si no es realmente necesario
-logger: Add sysfs interface to Enable / Disable Android Logger
-Añadido en STweaks opción para activar o desactivar LOGGER (por defecto está desactivado)
-power: add fbearlysuspend sysfs interface
-Añadido en STweaks opción para controlar el fbearlysuspend (fix crt-off)
-mms_ts: Añadido interfaz sistema para permitir el cambio de touch boost
-Añadido en STweaks opción para controlar touch booster.
-staging: android: lowmemorykiller: Cambiar debug_level default a 1
-ashmem: fix deadlock when system is low on memory
-SCHEDULER: Autogroup patch group by current user android UID
-VM: lower latency values to help reduce lag
-OOM: dont kill kernel threads
-Disable GENTLE_FAIR_SLEEPERS for moar performance
-Añadido Touch Wake al sistema.
-input.c: Disable touch2wake if incall
-Añadido en STweaks opción para controlar Touch Wake.
-wakelock: use single threaded workqueueus
-Añadido en STeaks opción para controlar Swappiness
-Añadido en STeaks opción para controlar Dirty Ratio
-Añadido en STeaks opción para controlar Dirty Background Ratio
-Añadido en STeaks opción para controlar Dirty Writeback Centisecs
-Añadido en STeaks opción para controlar Dirty Expire Centisecs
-Añadido en STeaks dentro de la pestaña Zzmoove perfiles de Batería, Equilibrado y Rendimiento.
-Muchas mas cosas que ahora con las prisas no recuerdo, en el git lo tienen todos los cambios
+Actualizado a Linux 3.0.81
+Revertidos bastantes cambios que se realizaron en 3.6/3.7 (+ info en GIT)
+Eliminados varios tweaks internos
+Modificados perfiles Batería, Equilibrado y rendimiento (Mejorar en sleep) en pestaña ZZMOOVE en stweaks
+Eliminados perfiles wr/FS en pestaña ZZMOOVE en stweaks
+VM_MAX_READAHEAD por defecto de nuevo en 256
+GPU max_freq de nuevo a 440
+Reconfiguración del kernel por completo (lonas_defconfig update)
 --------------------------------------------------
 
 Gracias a la cantidad de utilidades aportadas a la comunidad, modificaciones, parches, añadidos, etc.. Así como la ayuda prestada en alguna ocasión por compañeros aquí citados.
