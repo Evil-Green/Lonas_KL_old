@@ -1,17 +1,21 @@
 
-Kernel Lonas_KL 3.8 versión Stock
+Kernel Lonas_KL 3.9 versión Stock
 
 ------------------------------------------------
-Cambios realizados a día 08/06/2013
+Cambios realizados a día 12/06/2013
 
-Actualizado a Linux 3.0.81
-Revertidos bastantes cambios que se realizaron en 3.6/3.7 (+ info en GIT)
-Eliminados varios tweaks internos
-Modificados perfiles Batería, Equilibrado y rendimiento (Mejorar en sleep) en pestaña ZZMOOVE en stweaks
-Eliminados perfiles wr/FS en pestaña ZZMOOVE en stweaks
-VM_MAX_READAHEAD por defecto de nuevo en 256
-GPU max_freq de nuevo a 440
-Reconfiguración del kernel por completo (lonas_defconfig update)
+display: capability for CPU frequency based LCD freq scaling
+cpufreq: zzmoove governor v0.5
+cpufreq: Resolver problema CPUFREQ_NOTIFY
+cpufreq: Retain only online cpus in managed_policy->cpus
+CPU hotplug, writeback: Don't call writeback_set_ratelimit() too often during hotplug
+i.MX25 GPT clock fix: ensure correct the clock source
+mutex: Make more scalable by doing less atomic operations
+ashmem: fix deadlock when system is low on memory
+Disable GENTLE_FAIR_SLEEPERS for moar performance
+block: ROW & blk-core
+GPU: por defecto Máxima Freq a 533 MHz
+Undervolt: Permitir bajar los voltajes -25
 --------------------------------------------------
 
 Gracias a la cantidad de utilidades aportadas a la comunidad, modificaciones, parches, añadidos, etc.. Así como la ayuda prestada en alguna ocasión por compañeros aquí citados.
