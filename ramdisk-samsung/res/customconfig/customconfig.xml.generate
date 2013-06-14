@@ -69,7 +69,7 @@ while read FREQ UVOLT; do
       <seekBar  description=\"Voltage por defecto: $UVOLTµV\" 
 	        name=\"${FREQ} MHz step\" 
                 action=\"cpuvolt ${FREQ}\"
-                unit=\"µV\" min=\"600000\" reversed=\"false\" step=\"25000\" max=\"1400000\"/>" >> $XML
+                unit=\"µV\" min=\"600000\" reversed=\"false\" step=\"5000\" max=\"1400000\"/>" >> $XML
   CPUFREQLIST="$CPUFREQLIST $FREQ"
 done < /sys/devices/system/cpu/cpu0/cpufreq/UV_uV_table
 
@@ -280,7 +280,7 @@ while read FREQ VOLT; do
     echo "<seekBar  description=\"Default voltage: $VOLTµV\" 
 	          name=\"${S_FREQ} MHz step\" 
                   action=\"intvolt ${S_FREQ}\"
-                  unit=\"µV\" min=\"600000\" reversed=\"false\" step=\"25000\" max=\"1150000\"/>" >> $XML
+                  unit=\"µV\" min=\"600000\" reversed=\"false\" step=\"5000\" max=\"1150000\"/>" >> $XML
   fi
 done < /sys/devices/system/cpu/busfreq/int_volt_table
 
@@ -297,7 +297,7 @@ while read FREQ VOLT; do
     echo "<seekBar  description=\"Default voltage: $VOLTµV\" 
 	          name=\"${S_FREQ} MHz step\" 
                   action=\"mifvolt ${S_FREQ}\"
-                  unit=\"µV\" min=\"750000\" reversed=\"false\" step=\"25000\" max=\"1100000\"/>" >> $XML
+                  unit=\"µV\" min=\"750000\" reversed=\"false\" step=\"5000\" max=\"1100000\"/>" >> $XML
   fi
 done < /sys/devices/system/cpu/busfreq/mif_volt_table
 
@@ -369,7 +369,7 @@ while read FREQ VOLT; do
   echo "<seekBar  description=\"Default voltage: $VOLT\" 
 	          name=\"${FREQ%???} MHz step\" 
                   action=\"gpuvolt ${FREQ%???}\"
-                  unit=\" mV\" min=\"600\" reversed=\"false\" step=\"25\" max=\"1300\"/>" >> $XML
+                  unit=\" mV\" min=\"600\" reversed=\"false\" step=\"5\" max=\"1300\"/>" >> $XML
 done < /sys/devices/system/gpu/volt_table
 
 echo '
@@ -388,22 +388,22 @@ echo "
      <seekBar  description=\"Slice 1 frequencias: ..`cat /sys/devices/system/abb/arm/arm_slice_1_freq`].\"
                name=\"Slice 1 voltage\"
                action=\"generic /sys/devices/system/abb/arm/arm_slice_1_volt\" 
-               unit=\"mV\" min=\"600\" reversed=\"false\" step=\"25\" max=\"1600\"/>
+               unit=\"mV\" min=\"600\" reversed=\"false\" step=\"5\" max=\"1600\"/>
 
      <seekBar  description=\"Slice 2 frequencias: ..`cat /sys/devices/system/abb/arm/arm_slice_2_freq`].\"
                name=\"Slice 2 voltage\"
                action=\"generic /sys/devices/system/abb/arm/arm_slice_2_volt\" 
-               unit=\"mV\" min=\"600\" reversed=\"false\" step=\"25\" max=\"1600\"/>
+               unit=\"mV\" min=\"600\" reversed=\"false\" step=\"5\" max=\"1600\"/>
 
      <seekBar  description=\"Slice 3 frequencias: ..`cat /sys/devices/system/abb/arm/arm_slice_3_freq`].\"
                name=\"Slice 3 voltage\"
                action=\"generic /sys/devices/system/abb/arm/arm_slice_3_volt\" 
-               unit=\"mV\" min=\"600\" reversed=\"false\" step=\"25\" max=\"1600\"/>
+               unit=\"mV\" min=\"600\" reversed=\"false\" step=\"5\" max=\"1600\"/>
 
      <seekBar  description=\"Slice 4 frequencias: ]`cat /sys/devices/system/abb/arm/arm_slice_3_freq`.. .\"
                name=\"Slice 4 voltage\"
                action=\"generic /sys/devices/system/abb/arm/arm_slice_4_volt\" 
-               unit=\"mV\" min=\"600\" reversed=\"false\" step=\"25\" max=\"1600\"/>
+               unit=\"mV\" min=\"600\" reversed=\"false\" step=\"5\" max=\"1600\"/>
 
     </settingsPane>
 
@@ -412,17 +412,17 @@ echo "
      <seekBar  description=\"Slice 1 frequencies: ..`cat /sys/devices/system/abb/g3d/g3d_slice_1_freq`].\"
                name=\"Slice 1 voltage\"
                action=\"generic /sys/devices/system/abb/g3d/g3d_slice_1_volt\" 
-               unit=\"mV\" min=\"600\" reversed=\"false\" step=\"25\" max=\"1600\"/>
+               unit=\"mV\" min=\"600\" reversed=\"false\" step=\"5\" max=\"1600\"/>
 
      <seekBar  description=\"Slice 2 frequencies: ..`cat /sys/devices/system/abb/g3d/g3d_slice_2_freq`].\"
                name=\"Slice 2 voltage\"
                action=\"generic /sys/devices/system/abb/g3d/g3d_slice_2_volt\" 
-               unit=\"mV\" min=\"600\" reversed=\"false\" step=\"25\" max=\"1600\"/>
+               unit=\"mV\" min=\"600\" reversed=\"false\" step=\"5\" max=\"1600\"/>
 
      <seekBar  description=\"Slice 3 frequencies: ]`cat /sys/devices/system/abb/g3d/g3d_slice_2_freq`.. .\"
                name=\"Slice 3 voltage\"
                action=\"generic /sys/devices/system/abb/g3d/g3d_slice_3_volt\" 
-               unit=\"mV\" min=\"600\" reversed=\"false\" step=\"25\" max=\"1600\"/>
+               unit=\"mV\" min=\"600\" reversed=\"false\" step=\"5\" max=\"1600\"/>
 
     </settingsPane>
 
@@ -431,12 +431,12 @@ echo "
      <seekBar  description=\"Slice 1 frequencies: ..`cat /sys/devices/system/abb/mif/mif_slice_1_freq`].\"
                name=\"Slice 1 voltage\"
                action=\"generic /sys/devices/system/abb/mif/mif_slice_1_volt\" 
-               unit=\"mV\" min=\"600\" reversed=\"false\" step=\"25\" max=\"1600\"/>
+               unit=\"mV\" min=\"600\" reversed=\"false\" step=\"5\" max=\"1600\"/>
 
      <seekBar  description=\"Slice 2 frequencies: ]`cat /sys/devices/system/abb/mif/mif_slice_1_freq`.. .\"
                name=\"Slice 2 voltage\"
                action=\"generic /sys/devices/system/abb/mif/mif_slice_2_volt\" 
-               unit=\"mV\" min=\"600\" reversed=\"false\" step=\"25\" max=\"1600\"/>
+               unit=\"mV\" min=\"600\" reversed=\"false\" step=\"5\" max=\"1600\"/>
 
     </settingsPane>
 
@@ -445,12 +445,12 @@ echo "
      <seekBar  description=\"Slice 1 frequencies: ..`cat /sys/devices/system/abb/int/int_slice_1_freq`].\"
                name=\"Slice 1 voltage\"
                action=\"generic /sys/devices/system/abb/int/int_slice_1_volt\" 
-               unit=\"mV\" min=\"600\" reversed=\"false\" step=\"25\" max=\"1600\"/>
+               unit=\"mV\" min=\"600\" reversed=\"false\" step=\"5\" max=\"1600\"/>
 
      <seekBar  description=\"Slice 2 frequencies: ]`cat /sys/devices/system/abb/int/int_slice_1_freq`.. .\"
                name=\"Slice 2 voltage\"
                action=\"generic /sys/devices/system/abb/int/int_slice_2_volt\" 
-               unit=\"mV\" min=\"600\" reversed=\"false\" step=\"25\" max=\"1600\"/>
+               unit=\"mV\" min=\"600\" reversed=\"false\" step=\"5\" max=\"1600\"/>
 
     </settingsPane>
 " >> $XML
