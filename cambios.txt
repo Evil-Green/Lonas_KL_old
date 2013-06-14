@@ -1,21 +1,13 @@
 
-Kernel Lonas_KL 3.9 versión Stock
+Kernel Lonas_KL 4.0 versión Stock
 
 ------------------------------------------------
-Cambios realizados a día 12/06/2013
+Cambios realizados a día 14/06/2013
 
-display: capability for CPU frequency based LCD freq scaling
-cpufreq: zzmoove governor v0.5
-cpufreq: Resolver problema CPUFREQ_NOTIFY
-cpufreq: Retain only online cpus in managed_policy->cpus
-CPU hotplug, writeback: Don't call writeback_set_ratelimit() too often during hotplug
-i.MX25 GPT clock fix: ensure correct the clock source
-mutex: Make more scalable by doing less atomic operations
-ashmem: fix deadlock when system is low on memory
-Disable GENTLE_FAIR_SLEEPERS for moar performance
-block: ROW & blk-core
-GPU: por defecto Máxima Freq a 533 MHz
-Undervolt: Permitir bajar los voltajes -25
+Linux 3.0.82
+Undervolt: Permitir bajar los voltajes -5
+staging: Update snappy compression
+Activada snappy compression por defecto
 --------------------------------------------------
 
 Gracias a la cantidad de utilidades aportadas a la comunidad, modificaciones, parches, añadidos, etc.. Así como la ayuda prestada en alguna ocasión por compañeros aquí citados.
