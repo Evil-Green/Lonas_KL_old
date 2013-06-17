@@ -1,1 +1,1 @@
-#define UTS_RELEASE "3.0.80-Lonas_KL-3.8"
+#define UTS_RELEASE "3.0.82-Lonas_KL-4.0"

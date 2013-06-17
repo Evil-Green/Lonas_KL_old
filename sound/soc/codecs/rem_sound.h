@@ -124,7 +124,7 @@ unsigned int Rem_sound_hook_wm8994_write(unsigned int reg, unsigned int value);
 #define AIF1_DRC1_2_STUNING	2116
 #define AIF1_DRC1_3_STUNING	16
 #define AIF1_DRC1_4_STUNING	235
-	
+
 // Speaker tuning
 #define SPEAKER_BOOST_DEFAULT	4
 #define SPEAKER_BOOST_TUNED	6

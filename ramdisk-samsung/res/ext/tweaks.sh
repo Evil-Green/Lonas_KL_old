@@ -5,7 +5,10 @@
 
 
 # Miscellaneous tweaks
-echo "3" > /proc/sys/vm/page-cluster
+echo "0" > /proc/sys/vm/block_dump
+echo "0" > /proc/sys/vm/laptop_mode
+echo "0" > /proc/sys/vm/panic_on_oom 
+echo "8" > /proc/sys/vm/page-cluster
 echo "10" > /proc/sys/fs/lease-break-time
 echo "64000" > /proc/sys/kernel/msgmni
 echo "64000" > /proc/sys/kernel/msgmax
@@ -38,6 +41,20 @@ echo "256960" > /proc/sys/net/core/wmem_default;
 echo "4096 16384 404480" > /proc/sys/net/ipv4/tcp_wmem;
 echo "4096 87380 404480" > /proc/sys/net/ipv4/tcp_rmem;
 
+LOOP=`ls -d /sys/block/loop*`
+RAM=`ls -d /sys/block/ram*`
+MMC=`ls -d /sys/block/mmc*`
+
+for i in $LOOP $RAM $MMC
+do 
+echo "row" > $i/queue/scheduler
+echo "0" > $i/queue/add_random
+echo "0" > $i/queue/rotational
+echo "8192" > $i/queue/nr_requests
+echo "0" > $i/queue/iostats
+echo "1" > $i/queue/iosched/back_seek_penalty
+echo "2" > $i/queue/iosched/slice_idle
+done
 
 # Turn off debugging for certain modules
 echo "0" > /sys/module/wakelock/parameters/debug_mask

@@ -2590,5 +2590,3 @@ static void rem_sound_exit(void)
 
 module_init(rem_sound_init);
 module_exit(rem_sound_exit);
-
-
