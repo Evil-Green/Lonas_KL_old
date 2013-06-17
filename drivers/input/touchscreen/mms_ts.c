@@ -3492,6 +3492,7 @@ static void mms_ts_early_suspend(struct early_suspend *h)
   info = container_of(h, struct mms_ts_info, early_suspend);
   mms_ts_suspend(&info->client->dev);
 #endif
+
 }
 
 static void mms_ts_late_resume(struct early_suspend *h)
