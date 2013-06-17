@@ -2,10 +2,16 @@
 Kernel Lonas_KL 4.1 versión Stock
 
 ------------------------------------------------
-Cambios realizados a día 17/06/2013
+Cambios realizados a día 18/06/2013
 
 touchwake: reducido el tiempo de espera por defecto
 touchwake: correciones internas
+defconfig: enabling VENO as TCP Congestion Control algorithm
+sched: don't call task_group() many times in set_task_rq()
+word-at-a-time: make the interfaces truly generic
+defconfig: Activado CONFIG_AIO
+ZZMoove Governor 0.5.1a
+Actualizado ZZmoove en Stweaks
 --------------------------------------------------
 
 Gracias a la cantidad de utilidades aportadas a la comunidad, modificaciones, parches, añadidos, etc.. Así como la ayuda prestada en alguna ocasión por compañeros aquí citados.
