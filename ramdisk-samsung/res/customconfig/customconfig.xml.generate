@@ -611,7 +611,7 @@ echo '
                 action="generic01 /sys/class/misc/touchwake/enabled"
                 label="Activar Touch-to-Wake"/>
 
-      <seekBar  description="Touch-to-Wake retraso en milisegundos (por defecto son 5000ms). Ajuste de retardo a 0 hace que Touch-to-Wake permanezca siempre activa !" 
+      <seekBar  description="Touch-to-Wake retraso en milisegundos (por defecto son 3000ms). Ajuste de retardo a 0 hace que Touch-to-Wake permanezca siempre activa !" 
 		name="Touch-to-Wake Delay" 
                 action="generic /sys/class/misc/touchwake/delay" 
                 unit=" ms" min="0" reversed="false" step="1000" max="60000"/>
