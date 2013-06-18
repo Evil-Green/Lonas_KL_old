@@ -208,7 +208,7 @@ Los valores que puede tomar este parámetro son enteros positivos. El valor 1 ha
       <seekBar description=\"Por defecto: 0.\" 
                name=\"Frequency limit sleep\" 
                action=\"generic /sys/devices/system/cpu/cpufreq/zzmoove/freq_limit_sleep\"
-               unit=\"hz\" min=\"0\" reversed=\"false\" step=\"100000\" max=\"1600000\"/
+               unit=\"hz\" min=\"0\" reversed=\"false\" step=\"100000\" max=\"1600000\"/>
 
       <seekBar description=\"Por defecto: 0.\" 
                name=\"Fast scaling\" 
