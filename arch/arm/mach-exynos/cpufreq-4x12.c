@@ -563,6 +563,24 @@ static void exynos4x12_set_frequency(unsigned int old_index,
 }
 
 /* Get maximum cpufreq index of chip */
+static unsigned int get_max_cpufreq_idx(void)
+{
+	unsigned int index;
+
+	/* exynos4x12 prime supports 1.6GHz */
+	if (samsung_rev() >= EXYNOS4412_REV_2_0)
+		index = L0;
+	else {
+	/* exynos4x12 supports only 1.4GHz and 1.1GHz */
+		if (exynos_armclk_max != 1400000)
+			index = L6;
+		else
+			index = L0; /* Allow the full use of the freq. table (max. 1.6GHz) */
+	}
+
+	return index;
+}
+
 static void __init set_volt_table(void)
 {
 	unsigned int i, tmp;
