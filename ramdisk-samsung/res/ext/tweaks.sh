@@ -3,16 +3,27 @@
 # Tweaks - by Javilonas
 #
 
+# CACHE AUTO CLEAN
+sync
+echo "3" > /proc/sys/vm/drop_caches
+sleep 1
+echo "0" > /proc/sys/vm/drop_caches
+echo "500000" > /proc/sys/kernel/sched_min_granularity_ns
+echo "1000000" > /proc/sys/kernel/sched_latency_ns
+echo "100000" > /proc/sys/kernel/sched_wakeup_granularity_ns
 
 # Miscellaneous tweaks
 echo "0" > /proc/sys/vm/block_dump
 echo "0" > /proc/sys/vm/laptop_mode
 echo "0" > /proc/sys/vm/panic_on_oom 
-echo "8" > /proc/sys/vm/page-cluster
+echo "3" > /proc/sys/vm/page-cluster
 echo "10" > /proc/sys/fs/lease-break-time
 echo "64000" > /proc/sys/kernel/msgmni
 echo "64000" > /proc/sys/kernel/msgmax
 echo "500 512000 64 2048" > /proc/sys/kernel/sem
+
+mkswap /dev/block/zram0
+swapon /dev/block/zram0
  
 # Tweaks internos
 echo "-1" > /sys/devices/system/gpu/time_in_state
@@ -44,8 +55,9 @@ echo "4096 87380 404480" > /proc/sys/net/ipv4/tcp_rmem;
 LOOP=`ls -d /sys/block/loop*`
 RAM=`ls -d /sys/block/ram*`
 MMC=`ls -d /sys/block/mmc*`
+ZRAM=`ls -d /sys/block/zram*`
 
-for i in $LOOP $RAM $MMC
+for i in $LOOP $RAM $MMC $ZRAM
 do 
 echo "row" > $i/queue/scheduler
 echo "0" > $i/queue/add_random
