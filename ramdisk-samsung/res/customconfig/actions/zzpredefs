@@ -97,6 +97,7 @@ write_values(){
   echo $lcdfreq_kick_in_freq >/sys/devices/system/cpu/cpufreq/zzmoove/lcdfreq_kick_in_freq
 }
 
+  #ZZMoove - Default
 case "$zzpredef" in
   0)
     sampling_rate="100000"
@@ -122,8 +123,8 @@ case "$zzpredef" in
     freq_step_sleep="1"
     freq_limit="0"
     freq_limit_sleep="700000"
-    fast_scaling="0"
-    fast_scaling_sleep="0"
+    fast_scaling="1"
+    fast_scaling_sleep="1"
     early_demand="0"
     grad_up_threshold="25"
     ignore_nice_load="0"
@@ -135,6 +136,7 @@ case "$zzpredef" in
     zzmoove_predef="0"
     write_values
     ;;
+  #ZZMoove - Batería
   1)
     sampling_rate="180000"
     sampling_rate_sleep_multiplier="4"
@@ -172,6 +174,7 @@ case "$zzpredef" in
     zzmoove_predef="1"
     write_values
     ;;
+  #ZZMoove - Optimizado
   2)
     sampling_rate="45000"
     sampling_rate_sleep_multiplier="4"
@@ -209,6 +212,7 @@ case "$zzpredef" in
     zzmoove_predef="2"
     write_values
     ;;
+  #ZZMoove - Rendimiento
   3)
     sampling_rate="40000"
     sampling_rate_sleep_multiplier="4"
